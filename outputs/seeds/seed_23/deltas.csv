@@ -1,0 +1,25 @@
+arm,vs,metric,delta,ci_low,ci_high
+profile + decile (XGBoost),graph features,auc,-0.03884583558000787,-0.050499650201275066,-0.02972407707417588
+profile + decile (XGBoost),graph features,captured_5pct,-83.0,-111.875,-54.12500000000001
++ centrality and community structure,profile + decile,auc,0.03032551511083048,0.023047372495643023,0.03950780251839488
++ centrality and community structure,profile + decile,captured_5pct,51.0,29.575,76.64999999999999
++ centrality and community structure,graph features,auc,-0.00852032046917739,-0.013516299648441407,-0.003699743036030865
++ centrality and community structure,graph features,captured_5pct,-32.0,-49.775,-12.125000000000007
++ community and neighbour conversion rates,profile + decile,auc,0.03884583558000787,0.02972407707417588,0.050499650201275066
++ community and neighbour conversion rates,profile + decile,captured_5pct,83.0,54.125,111.875
+graph features + node2vec,profile + decile,auc,0.04578038912825344,0.03462555077077209,0.057550892894711915
+graph features + node2vec,profile + decile,captured_5pct,88.0,63.45,118.775
+graph features + node2vec,graph features,auc,0.00693455354824557,-0.0008920202532452236,0.01373845699680117
+graph features + node2vec,graph features,captured_5pct,5.0,-18.55,28.324999999999996
+graph features + GraphSAGE,profile + decile,auc,0.0383081328392616,0.02882409265021732,0.04773982281732181
+graph features + GraphSAGE,profile + decile,captured_5pct,64.0,40.0,93.775
+graph features + GraphSAGE,graph features,auc,-0.0005377027407462709,-0.0056505492775740076,0.003132403321456748
+graph features + GraphSAGE,graph features,captured_5pct,-19.0,-36.775,-3.0
+graph features + node2vec + GraphSAGE,profile + decile,auc,0.0462431495762784,0.035132261595631015,0.05723674473502003
+graph features + node2vec + GraphSAGE,profile + decile,captured_5pct,87.0,52.25,112.32499999999999
+graph features + node2vec + GraphSAGE,graph features,auc,0.007397313996270527,0.0006795425110171837,0.013856166925371612
+graph features + node2vec + GraphSAGE,graph features,captured_5pct,4.0,-16.775,25.775
+profile + embeddings only (no hand-built graph features),profile + decile,auc,0.027170928592544996,0.016534743824585075,0.03684990702834483
+profile + embeddings only (no hand-built graph features),profile + decile,captured_5pct,38.0,15.45,68.875
+profile + embeddings only (no hand-built graph features),graph features,auc,-0.011674906987462874,-0.022922231229232273,-0.005843407188467956
+profile + embeddings only (no hand-built graph features),graph features,captured_5pct,-45.0,-68.0,-23.225

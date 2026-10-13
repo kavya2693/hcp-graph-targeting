@@ -1,0 +1,16 @@
+[   0.6s] loaded 20000 HCPs, 75155 edges, conversion rate 0.081
+[   5.2s] Louvain level 0: 35 communities, largest 2402
+[   5.2s] Louvain level 1: 408 communities, largest 135
+[1564.1s] centrality and structure features built
+[5672.7s] node2vec embeddings trained
+[7726.5s] GraphSAGE embeddings trained
+[7739.2s] profile + decile (XGBoost): AUC 0.641
+[8795.8s] + centrality and community structure: AUC 0.658
+[12197.0s] + community and neighbour conversion rates: AUC 0.668
+[12201.2s] graph features + node2vec: AUC 0.676
+[12205.1s] graph features + GraphSAGE: AUC 0.666
+[12210.9s] graph features + node2vec + GraphSAGE: AUC 0.674
+[12223.8s] profile + embeddings only (no hand-built graph features): AUC 0.658
+[12235.0s] shuffled control + community and neighbour conversion rates: AUC 0.633
+[12247.3s] shuffled control graph features + node2vec + GraphSAGE: AUC 0.633
+[12278.9s] wrote outputs/ablation.md, deltas.csv, feature_importance.csv, summary.json

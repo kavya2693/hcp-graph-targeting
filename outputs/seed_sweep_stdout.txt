@@ -1,0 +1,143 @@
+[   0.4s] loaded 20000 HCPs, 75982 edges, conversion rate 0.080
+[   6.5s] Louvain level 0: 39 communities, largest 2183
+[   6.5s] Louvain level 1: 403 communities, largest 133
+[  14.4s] centrality and structure features built
+[  60.5s] node2vec embeddings trained
+[  71.3s] GraphSAGE embeddings trained
+[  84.2s] profile + decile (XGBoost): AUC 0.638
+[  95.7s] + centrality and community structure: AUC 0.659
+[ 110.4s] + community and neighbour conversion rates: AUC 0.663
+[ 132.7s] graph features + node2vec: AUC 0.665
+[ 159.0s] graph features + GraphSAGE: AUC 0.662
+[ 189.7s] graph features + node2vec + GraphSAGE: AUC 0.666
+[ 211.9s] profile + embeddings only (no hand-built graph features): AUC 0.652
+[ 229.0s] shuffled control + community and neighbour conversion rates: AUC 0.636
+[ 257.9s] shuffled control graph features + node2vec + GraphSAGE: AUC 0.629
+[ 268.2s] wrote outputs/seeds/seed_11/ablation.md, deltas.csv, feature_importance.csv, summary.json
+| arm | AUC | fold sd | top-decile lift | captured_5pct | captured_20pct |
+|---|---|---|---|---|---|
+| decile list (no model) | 0.626 |  | 1.58 | 126 | 503 |
+| profile + decile (XGBoost) | 0.638 | 0.013 | 1.58 | 119 | 520 |
+| + centrality and community structure | 0.659 | 0.010 | 2.11 | 180 | 593 |
+| + community and neighbour conversion rates | 0.663 | 0.012 | 2.14 | 192 | 584 |
+| graph features + node2vec | 0.665 | 0.009 | 2.18 | 197 | 602 |
+| graph features + GraphSAGE | 0.662 | 0.011 | 2.15 | 186 | 576 |
+| graph features + node2vec + GraphSAGE | 0.666 | 0.009 | 2.22 | 203 | 591 |
+| profile + embeddings only (no hand-built graph features) | 0.652 | 0.012 | 1.96 | 153 | 549 |
+| control, HCPs shuffled across the graph: + community and neighbour conversion rates | 0.636 | 0.014 | 1.63 | 128 | 523 |
+| control, HCPs shuffled across the graph: graph features + node2vec + GraphSAGE | 0.629 | 0.013 | 1.56 | 123 | 495 |
+| ceiling: true propensity (answer key) | 0.754 |  | 3.09 | 291 | 805 |
+                                                     arm               vs        metric    delta   ci_low  ci_high
+                              profile + decile (XGBoost)   graph features           auc  -0.0247  -0.0333  -0.0159
+                              profile + decile (XGBoost)   graph features captured_5pct -73.0000 -92.5500 -51.1250
+                    + centrality and community structure profile + decile           auc   0.0212   0.0106   0.0307
+                    + centrality and community structure profile + decile captured_5pct  61.0000  36.4500  79.3250
+                    + centrality and community structure   graph features           auc  -0.0036  -0.0079   0.0012
+                    + centrality and community structure   graph features captured_5pct -12.0000 -32.5500   5.2000
+              + community and neighbour conversion rates profile + decile           auc   0.0247   0.0159   0.0333
+              + community and neighbour conversion rates profile + decile captured_5pct  73.0000  51.1250  92.5500
+                               graph features + node2vec profile + decile           auc   0.0263   0.0155   0.0372
+                               graph features + node2vec profile + decile captured_5pct  78.0000  46.8000  96.5500
+                               graph features + node2vec   graph features           auc   0.0016  -0.0062   0.0075
+                               graph features + node2vec   graph features captured_5pct   5.0000 -20.0000  20.3250
+                              graph features + GraphSAGE profile + decile           auc   0.0238   0.0130   0.0345
+                              graph features + GraphSAGE profile + decile captured_5pct  67.0000  50.2250  92.0000
+                              graph features + GraphSAGE   graph features           auc  -0.0009  -0.0047   0.0049
+                              graph features + GraphSAGE   graph features captured_5pct  -6.0000 -24.5500  15.0000
+                   graph features + node2vec + GraphSAGE profile + decile           auc   0.0281   0.0170   0.0374
+                   graph features + node2vec + GraphSAGE profile + decile captured_5pct  84.0000  65.0000 109.8750
+                   graph features + node2vec + GraphSAGE   graph features           auc   0.0034  -0.0038   0.0101
+                   graph features + node2vec + GraphSAGE   graph features captured_5pct  11.0000  -7.1000  32.0000
+profile + embeddings only (no hand-built graph features) profile + decile           auc   0.0138   0.0049   0.0236
+profile + embeddings only (no hand-built graph features) profile + decile captured_5pct  34.0000  14.6750  57.0000
+profile + embeddings only (no hand-built graph features)   graph features           auc  -0.0109  -0.0241  -0.0022
+profile + embeddings only (no hand-built graph features)   graph features captured_5pct -39.0000 -63.4250  -5.4500
+{
+  "profile": 0.16508409731762083,
+  "structure": 0.14446789993425607,
+  "label_graph": 0.06960025928533985,
+  "node2vec": 0.4075161048128684,
+  "graphsage": 0.21333163864991486
+}
+[   0.5s] loaded 20000 HCPs, 75191 edges, conversion rate 0.097
+[   6.2s] Louvain level 0: 32 communities, largest 1973
+[   6.2s] Louvain level 1: 394 communities, largest 146
+[  14.6s] centrality and structure features built
+[  74.2s] node2vec embeddings trained
+[  86.6s] GraphSAGE embeddings trained
+[  97.2s] profile + decile (XGBoost): AUC 0.620
+[ 113.7s] + centrality and community structure: AUC 0.650
+[ 125.4s] + community and neighbour conversion rates: AUC 0.659
+[ 156.7s] graph features + node2vec: AUC 0.666
+[ 175.2s] graph features + GraphSAGE: AUC 0.658
+[ 198.9s] graph features + node2vec + GraphSAGE: AUC 0.666
+[ 235.0s] profile + embeddings only (no hand-built graph features): AUC 0.647
+[ 254.5s] shuffled control + community and neighbour conversion rates: AUC 0.619
+[ 279.0s] shuffled control graph features + node2vec + GraphSAGE: AUC 0.614
+[ 286.9s] wrote outputs/seeds/seed_23/ablation.md, deltas.csv, feature_importance.csv, summary.json
+| arm | AUC | fold sd | top-decile lift | captured_5pct | captured_20pct |
+|---|---|---|---|---|---|
+| decile list (no model) | 0.617 |  | 1.52 | 140 | 591 |
+| profile + decile (XGBoost) | 0.620 | 0.008 | 1.63 | 166 | 593 |
+| + centrality and community structure | 0.650 | 0.008 | 1.93 | 217 | 686 |
+| + community and neighbour conversion rates | 0.659 | 0.010 | 2.06 | 249 | 716 |
+| graph features + node2vec | 0.666 | 0.010 | 2.18 | 254 | 705 |
+| graph features + GraphSAGE | 0.658 | 0.009 | 2.10 | 230 | 700 |
+| graph features + node2vec + GraphSAGE | 0.666 | 0.010 | 2.12 | 253 | 714 |
+| profile + embeddings only (no hand-built graph features) | 0.647 | 0.011 | 1.88 | 204 | 672 |
+| control, HCPs shuffled across the graph: + community and neighbour conversion rates | 0.619 | 0.009 | 1.73 | 187 | 586 |
+| control, HCPs shuffled across the graph: graph features + node2vec + GraphSAGE | 0.614 | 0.005 | 1.49 | 155 | 575 |
+| ceiling: true propensity (answer key) | 0.750 |  | 3.11 | 371 | 962 |
+                                                     arm               vs        metric    delta    ci_low  ci_high
+                              profile + decile (XGBoost)   graph features           auc  -0.0388   -0.0505  -0.0297
+                              profile + decile (XGBoost)   graph features captured_5pct -83.0000 -111.8750 -54.1250
+                    + centrality and community structure profile + decile           auc   0.0303    0.0230   0.0395
+                    + centrality and community structure profile + decile captured_5pct  51.0000   29.5750  76.6500
+                    + centrality and community structure   graph features           auc  -0.0085   -0.0135  -0.0037
+                    + centrality and community structure   graph features captured_5pct -32.0000  -49.7750 -12.1250
+              + community and neighbour conversion rates profile + decile           auc   0.0388    0.0297   0.0505
+              + community and neighbour conversion rates profile + decile captured_5pct  83.0000   54.1250 111.8750
+                               graph features + node2vec profile + decile           auc   0.0458    0.0346   0.0576
+                               graph features + node2vec profile + decile captured_5pct  88.0000   63.4500 118.7750
+                               graph features + node2vec   graph features           auc   0.0069   -0.0009   0.0137
+                               graph features + node2vec   graph features captured_5pct   5.0000  -18.5500  28.3250
+                              graph features + GraphSAGE profile + decile           auc   0.0383    0.0288   0.0477
+                              graph features + GraphSAGE profile + decile captured_5pct  64.0000   40.0000  93.7750
+                              graph features + GraphSAGE   graph features           auc  -0.0005   -0.0057   0.0031
+                              graph features + GraphSAGE   graph features captured_5pct -19.0000  -36.7750  -3.0000
+                   graph features + node2vec + GraphSAGE profile + decile           auc   0.0462    0.0351   0.0572
+                   graph features + node2vec + GraphSAGE profile + decile captured_5pct  87.0000   52.2500 112.3250
+                   graph features + node2vec + GraphSAGE   graph features           auc   0.0074    0.0007   0.0139
+                   graph features + node2vec + GraphSAGE   graph features captured_5pct   4.0000  -16.7750  25.7750
+profile + embeddings only (no hand-built graph features) profile + decile           auc   0.0272    0.0165   0.0368
+profile + embeddings only (no hand-built graph features) profile + decile captured_5pct  38.0000   15.4500  68.8750
+profile + embeddings only (no hand-built graph features)   graph features           auc  -0.0117   -0.0229  -0.0058
+profile + embeddings only (no hand-built graph features)   graph features captured_5pct -45.0000  -68.0000 -23.2250
+{
+  "profile": 0.15770168357768974,
+  "structure": 0.14436592930222433,
+  "label_graph": 0.0763470954320123,
+  "node2vec": 0.40147459051650936,
+  "graphsage": 0.22011070117156417
+}
+AUC by seed
+arm   profile  graph features  + node2vec  + GraphSAGE  + both  embeddings only
+seed                                                                           
+7       0.641           0.668       0.676        0.666   0.674            0.658
+11      0.638           0.663       0.665        0.662   0.666            0.652
+23      0.620           0.659       0.666        0.658   0.666            0.647
+
+Conversions captured with a 5% call budget, by seed
+arm   profile  graph features  + node2vec  + GraphSAGE  + both  embeddings only
+seed                                                                           
+7         166             189         202          194     212              213
+11        119             192         197          186     203              153
+23        166             249         254          230     253              204
+
+AUC gain over graph features, by seed
+arm   profile  graph features  + node2vec  + GraphSAGE  + both  embeddings only
+seed                                                                           
+7     -0.0269             0.0      0.0078      -0.0025  0.0055          -0.0099
+11    -0.0247             0.0      0.0016      -0.0009  0.0034          -0.0109
+23    -0.0388             0.0      0.0069      -0.0005  0.0074          -0.0117
+

@@ -1,0 +1,25 @@
+arm,vs,metric,delta,ci_low,ci_high
+profile + decile (XGBoost),graph features,auc,-0.026926076568214885,-0.036988990053048634,-0.018096663302605155
+profile + decile (XGBoost),graph features,captured_5pct,-23.0,-50.05,-0.9749999999999943
++ centrality and community structure,profile + decile,auc,0.016415522111778658,0.008410954918689345,0.02603694668395415
++ centrality and community structure,profile + decile,captured_5pct,22.0,-4.0,43.025000000000006
++ centrality and community structure,graph features,auc,-0.010510554456436227,-0.017655790138000227,-0.002837396790556932
++ centrality and community structure,graph features,captured_5pct,-1.0,-22.049999999999997,19.0
++ community and neighbour conversion rates,profile + decile,auc,0.026926076568214885,0.018096663302605155,0.036988990053048634
++ community and neighbour conversion rates,profile + decile,captured_5pct,23.0,0.9750000000000005,50.05000000000001
+graph features + node2vec,profile + decile,auc,0.03471356447708829,0.023757286963750412,0.04510710073534079
+graph features + node2vec,profile + decile,captured_5pct,36.0,12.975000000000001,68.025
+graph features + node2vec,graph features,auc,0.007787487908873403,-0.00013489859611423848,0.014087153715838283
+graph features + node2vec,graph features,captured_5pct,13.0,-7.0,34.05000000000001
+graph features + GraphSAGE,profile + decile,auc,0.02443574097509016,0.0139534860093838,0.035278860664181316
+graph features + GraphSAGE,profile + decile,captured_5pct,28.0,7.0,55.0
+graph features + GraphSAGE,graph features,auc,-0.002490335593124726,-0.0075360652886304145,0.002563621787325146
+graph features + GraphSAGE,graph features,captured_5pct,5.0,-15.0,23.0
+graph features + node2vec + GraphSAGE,profile + decile,auc,0.03241454731962268,0.021712802867385212,0.04366471516695192
+graph features + node2vec + GraphSAGE,profile + decile,captured_5pct,46.0,16.0,74.025
+graph features + node2vec + GraphSAGE,graph features,auc,0.005488470751407792,-0.0018596526624529235,0.011884469150878424
+graph features + node2vec + GraphSAGE,graph features,captured_5pct,23.0,-5.0,42.0
+profile + embeddings only (no hand-built graph features),profile + decile,auc,0.016990049321939926,0.006262612521124026,0.02678838737039763
+profile + embeddings only (no hand-built graph features),profile + decile,captured_5pct,47.0,21.975,75.0
+profile + embeddings only (no hand-built graph features),graph features,auc,-0.009936027246274959,-0.02006307544251423,-0.0007513264065124027
+profile + embeddings only (no hand-built graph features),graph features,captured_5pct,24.0,-4.049999999999999,49.025000000000006

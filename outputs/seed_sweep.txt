@@ -1,0 +1,20 @@
+AUC by seed
+arm   profile  graph features  + node2vec  + GraphSAGE  + both  embeddings only
+seed                                                                           
+7       0.641           0.668       0.676        0.666   0.674            0.658
+11      0.638           0.663       0.665        0.662   0.666            0.652
+23      0.620           0.659       0.666        0.658   0.666            0.647
+
+Conversions captured with a 5% call budget, by seed
+arm   profile  graph features  + node2vec  + GraphSAGE  + both  embeddings only
+seed                                                                           
+7         166             189         202          194     212              213
+11        119             192         197          186     203              153
+23        166             249         254          230     253              204
+
+AUC gain over graph features, by seed
+arm   profile  graph features  + node2vec  + GraphSAGE  + both  embeddings only
+seed                                                                           
+7     -0.0269             0.0      0.0078      -0.0025  0.0055          -0.0099
+11    -0.0247             0.0      0.0016      -0.0009  0.0034          -0.0109
+23    -0.0388             0.0      0.0069      -0.0005  0.0074          -0.0117

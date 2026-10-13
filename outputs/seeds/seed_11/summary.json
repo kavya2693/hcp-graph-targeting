@@ -1,0 +1,24 @@
+{
+  "n_hcps": 20000,
+  "n_edges": 75982,
+  "conversion_rate": 0.0799,
+  "conversions": 1598,
+  "communities_per_level": [
+    39,
+    403
+  ],
+  "budgets": {
+    "captured_5pct": 1000,
+    "captured_20pct": 4000
+  },
+  "folds": 5,
+  "seed": 11,
+  "gain_share_by_block_full_model": {
+    "profile": 0.16508409731762083,
+    "structure": 0.14446789993425607,
+    "label_graph": 0.06960025928533985,
+    "node2vec": 0.4075161048128684,
+    "graphsage": 0.21333163864991486
+  },
+  "runtime_seconds": 268.2
+}
