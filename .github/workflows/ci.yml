@@ -33,3 +33,16 @@ jobs:
       # The full 20k-HCP run takes several minutes; CI proves the pipeline end to end on 3k.
       - name: end-to-end ablation, reduced scale
         run: uv run hcp-targeting --refresh --n-hcps 3000 --folds 3 --betweenness-k 64 --n-boot 50 --out ci-outputs
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: build image
+        run: docker buildx build --load -t hcp-targeting .
+
+      - name: run image, reduced scale
+        run: docker run --rm hcp-targeting hcp-targeting --refresh --n-hcps 2000 --folds 3 --betweenness-k 32 --n-boot 20
