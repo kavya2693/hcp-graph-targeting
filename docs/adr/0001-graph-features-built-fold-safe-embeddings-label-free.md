@@ -6,7 +6,7 @@ Accepted
 ## Context
 The question is whether network position adds anything to a decile-based call list, and
 whether learned node embeddings add anything on top of hand-built graph features. Both
-answers are easy to fake. Graph features that use outcomes (how many of my neighbours
+answers are easy to inflate. Graph features that use outcomes (how many of my neighbours
 converted, how my community converted) leak the label if a held-out HCP's own outcome, or
 its training-time equivalent, reaches its own row. Embeddings trained with a supervised
 objective on the whole graph leak in the same way.
