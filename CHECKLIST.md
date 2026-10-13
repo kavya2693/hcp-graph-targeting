@@ -10,10 +10,10 @@
 [x] Lint + format + types clean
 [x] One-command E2E run verified on this machine
 [ ] Gate 2 closed (results not reviewed by Kavyasri before publishing)
-[ ] Dockerfile builds and runs (local daemon fails with a storage I/O error; built and run in CI instead)
-[ ] CI workflow green on GitHub
+[x] Dockerfile builds and runs (in CI; local daemon fails with a storage I/O error)
+[x] CI workflow green on GitHub
 [x] .env.example present, no real values
 [x] prepush-scan.sh passes
 [x] 10+ incremental commits
-[ ] Public repo created, pushed, remote HEAD == local HEAD
-[ ] Root README index updated
+[x] Public repo created, pushed, remote HEAD == local HEAD
+[x] Root README index updated
