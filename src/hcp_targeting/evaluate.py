@@ -53,7 +53,7 @@ def bootstrap_delta(
     deltas = []
     for _ in range(n_boot):
         idx = rng.integers(0, len(y), size=len(y))
-        if y[idx].min() == y[idx].max():
+        if np.min(y[idx]) == np.max(y[idx]):
             continue
         deltas.append(metric(y[idx], a[idx]) - metric(y[idx], b[idx]))
     lo, hi = np.percentile(deltas, [2.5, 97.5])

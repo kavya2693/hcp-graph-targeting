@@ -61,7 +61,8 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     A = adjacency(ug)
     communities = louvain_communities(ug, args.seed)
     for i, level in enumerate(communities.T):
-        note(f"Louvain level {i}: {level.max() + 1} communities, largest {np.bincount(level).max()}")
+        n_comm, largest = int(np.max(level)) + 1, int(np.max(np.bincount(level)))
+        note(f"Louvain level {i}: {n_comm} communities, largest {largest}")
     structure = structural_features(ds, dg, ug, communities, args.betweenness_k, args.seed)
     note("centrality and structure features built")
     n2v = node2vec_embeddings(A, dim=args.dim, seed=args.seed)
@@ -161,7 +162,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         "n_edges": len(ds.edges),
         "conversion_rate": float(y.mean()),
         "conversions": int(y.sum()),
-        "communities_per_level": [int(c.max() + 1) for c in communities.T],
+        "communities_per_level": [int(np.max(c)) + 1 for c in communities.T],
         "budgets": budgets,
         "folds": args.folds,
         "seed": args.seed,
