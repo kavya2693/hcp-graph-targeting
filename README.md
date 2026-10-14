@@ -7,6 +7,182 @@
 Which doctors a launch sales team should call when prescription-volume deciles stop telling
 converters from non-converters, and how much of the answer comes from the referral network.
 
+[![88-second silent walkthrough: the industry problem, how it works, the architecture, the network, the call plan and the results](docs/demo/demo.gif)](docs/demo/demo.mp4)
+
+*88-second silent walkthrough. Click for the full video ([MP4, 7 MB](docs/demo/demo.mp4)).*
+
+📄 **Audit report:** every figure and assumption in the video, traced to its source — [PDF](docs/demo/AUDIT_REPORT.pdf) · [Word](docs/demo/AUDIT_REPORT.docx) · [Markdown](docs/demo/AUDIT_REPORT.md)
+
+## At a glance
+
+| | |
+|---|---|
+| **Problem** | A launch sales team ranks 20,000 HCPs by prescription-volume decile and calls from the top. Deciles barely separate converters from non-converters (AUC 0.623), and they ignore the referral and co-treatment ties through which doctors actually adopt. |
+| **Approach** | One XGBoost model per feature set, from deciles alone up to deciles plus centrality, Louvain communities, fold-built neighbour conversion rates, node2vec and GraphSAGE. All arms are scored on the same 5-fold out-of-fold predictions under a fixed call budget, with paired bootstrap intervals and a shuffled-graph control. |
+| **Result** | Graph features lift AUC from **0.641 to 0.668** (+0.027, 95% CI +0.018 to +0.037) and capture **189 converters instead of 166** with 1,000 calls. The best model captures **212 against 126** for the decile list, closing 44% of the gap to the answer-key ceiling (322). Shuffling HCPs across the graph drops both graph arms to 0.633. |
+| **What didn't win** | Embeddings. On top of the hand-built graph features, node2vec adds +0.008 AUC (interval touches zero), GraphSAGE adds nothing on any of three seeds, and both together add +0.006, yet they take 61% of split gain in the full model. The one run where embeddings alone captured the most converters (213 vs 189) reversed on two new networks. |
+
+## Architecture
+
+![Architecture walkthrough: sources, graph and profile features, fold-built conversion rates, embeddings, the per-arm XGBoost ablation and the evaluation that scores it](docs/demo/architecture.gif)
+
+```mermaid
+flowchart LR
+    subgraph SRC["Sources"]
+        GEN["Seeded generator<br/>scripts/generate_data.py<br/>data.generate"]
+        HCPS[("hcps.csv<br/>20,000 HCPs, labels")]
+        RX[("monthly_class_rx.csv<br/>24 months, gappy")]
+        EDGES[("edges.csv<br/>75,155 ties")]
+        KEY[("propensity_answer_key.npy<br/>ceiling only")]
+    end
+
+    subgraph FEAT["Data and features"]
+        LOAD["Loader<br/>data.load"]
+        PROF["Profile + decile<br/>features.profile_features"]
+        GRAPH["Directed + undirected graph<br/>features.build_graphs · adjacency"]
+        LOUV["Louvain, resolution 1 and 16<br/>features.louvain_communities"]
+        STRUCT["Centrality and structure<br/>features.structural_features"]
+        LBL["Fold-built conversion rates<br/>features.label_graph_features"]
+    end
+
+    subgraph MOD["Models"]
+        N2V["node2vec, label-free<br/>embeddings.node2vec_embeddings"]
+        SAGE["GraphSAGE, label-free<br/>embeddings.graphsage_embeddings"]
+        XGB["XGBoost per arm, 5-fold OOF<br/>evaluate.run_arm"]
+    end
+
+    subgraph DEC["Decision"]
+        RULE["Decile list, today's practice<br/>cli.run"]
+        PLAN["Call plan at 5% / 20% budget<br/>evaluate.captured_at_budget"]
+    end
+
+    subgraph EVAL["Evaluation"]
+        MET["AUC, top-decile lift, captured<br/>evaluate.summarise"]
+        BOOT["Paired bootstrap deltas<br/>evaluate.bootstrap_delta"]
+        SHUF["Shuffled-graph control<br/>cli.run"]
+        CEIL["Ceiling: true propensity<br/>cli.run"]
+        SWEEP["Seed sweep, seeds 11 and 23<br/>scripts/seed_sweep.py"]
+    end
+
+    subgraph OUT["Outputs"]
+        REPORT[("outputs/<br/>ablation.md · ablation.csv · deltas.csv<br/>feature_importance.csv · summary.json")]
+    end
+
+    GEN --> HCPS & RX & EDGES & KEY
+    HCPS --> LOAD
+    RX --> LOAD
+    EDGES --> LOAD
+    LOAD -->|"decile, volume, specialty, region"| PROF
+    LOAD -->|"src, dst, edge_type, shared_patients"| GRAPH
+    GRAPH -->|"weighted undirected graph"| LOUV
+    GRAPH -->|"DiGraph + Graph"| STRUCT
+    LOUV -->|"community id x 2 levels"| STRUCT
+    LOUV -->|"community id x 2 levels"| LBL
+    GRAPH -->|"sparse adjacency"| N2V
+    GRAPH -->|"sparse adjacency"| SAGE
+    PROF -->|"standardised node features"| SAGE
+    PROF -->|"profile block"| XGB
+    STRUCT -->|"structure block"| XGB
+    N2V -->|"32-dim vectors"| XGB
+    SAGE -->|"32-dim vectors"| XGB
+    LOAD -->|"converted, training folds only"| LBL
+    LBL -->|"rates per fold"| XGB
+    LOAD -->|"decile, annual_class_rx"| RULE
+    XGB -->|"out-of-fold score per HCP"| PLAN
+    RULE -->|"rank"| PLAN
+    PLAN --> MET
+    XGB -->|"OOF scores, two arms"| BOOT
+    KEY --> CEIL
+    CEIL --> MET
+    SHUF -.->|"HCPs permuted across nodes, re-fit"| XGB
+    SWEEP -.->|"regenerate market, rerun everything"| GEN
+    RX -.->|"missing months: nanmean, months_reported"| PROF
+    LBL -.->|"thin community: shrink to base rate"| LBL
+    MET --> REPORT
+    BOOT --> REPORT
+    SHUF --> REPORT
+    XGB -->|"gain share by block"| REPORT
+
+    classDef data fill:#7fa8ff,stroke:#3d6fd9,color:#0b1020
+    classDef model fill:#b9a2ff,stroke:#7a5fd6,color:#0b1020
+    classDef decision fill:#3fd8a8,stroke:#1f9c76,color:#0b1020
+    classDef evaluation fill:#f2c46d,stroke:#b8902f,color:#0b1020
+    classDef risk fill:#ff8a73,stroke:#cc5640,color:#0b1020
+
+    class GEN,HCPS,RX,EDGES,LOAD,PROF,GRAPH,LOUV,STRUCT,REPORT data
+    class N2V,SAGE,XGB model
+    class LBL,KEY risk
+    class RULE,PLAN decision
+    class MET,BOOT,SHUF,CEIL,SWEEP evaluation
+```
+
+Solid edges are the data flow of one `make run`; dotted edges are the controls, the fallbacks
+and the sweep that reruns everything. Red nodes are where an outcome can leak into a feature:
+the fold-built conversion rates, and the answer key that only the ceiling row may read.
+
+### Components
+
+| Component | Responsibility | File |
+|---|---|---|
+| Data generator | 20,000 HCPs, 24 months of class prescriptions with gaps and spikes, co-treatment and referral ties, conversion outcomes, and the true propensity written to a separate answer key | [`scripts/generate_data.py`](scripts/generate_data.py), [`src/hcp_targeting/data.py`](src/hcp_targeting/data.py) |
+| Profile features | What a decile list already has: decile, log volume, 3-month trend, months reported, years in practice, specialty, region | [`src/hcp_targeting/features.py`](src/hcp_targeting/features.py) (`profile_features`) |
+| Graph and structure features | Directed and undirected graphs, PageRank, sampled betweenness, clustering, neighbour decile and PageRank, hub ties, Louvain at two resolutions | [`src/hcp_targeting/features.py`](src/hcp_targeting/features.py) (`build_graphs`, `louvain_communities`, `structural_features`) |
+| Fold-built conversion rates | Community and neighbour conversion rates rebuilt per outer fold from training labels, with an inner 5-fold split for training rows and shrinkage to the base rate | [`src/hcp_targeting/features.py`](src/hcp_targeting/features.py) (`label_graph_features`) |
+| Embeddings | node2vec walks and skip-gram written in numpy and torch; two-layer GraphSAGE (PyTorch Geometric `SAGEConv`) trained on tie vs random pair; neither sees a label | [`src/hcp_targeting/embeddings.py`](src/hcp_targeting/embeddings.py) |
+| Ablation and metrics | The seven arms, XGBoost settings, stratified folds, AUC, top-decile lift, captured at budget, paired bootstrap | [`src/hcp_targeting/evaluate.py`](src/hcp_targeting/evaluate.py) |
+| Orchestrator | One command end to end: data, features, embeddings, every arm, decile baseline, shuffled control, ceiling, report | [`src/hcp_targeting/cli.py`](src/hcp_targeting/cli.py) |
+| Seed sweep | Regenerates the market with seeds 11 and 23 and reruns the ablation | [`scripts/seed_sweep.py`](scripts/seed_sweep.py) |
+
+### Design decisions
+
+| Decision | Options considered | Chosen | Trade-off |
+|---|---|---|---|
+| How outcome-based graph features are built | Global rates on all labels; leave-one-out target encoding; rebuilt inside each fold | Rebuilt per outer fold, inner 5-fold split for training rows ([ADR-0001](docs/adr/0001-graph-features-built-fold-safe-embeddings-label-free.md)) | No leak (LOO dropped held-out AUC to 0.589 here), but the features cannot be precomputed once and need last campaign's outcomes at scoring time |
+| How embeddings are trained | Supervised GraphSAGE as the classifier; unsupervised embeddings fed to XGBoost | Unsupervised node2vec and GraphSAGE, trained once per graph, fed to the same XGBoost | Tests whether embeddings add to the hand-built features rather than competing with XGBoost; leaves a fold-safe supervised GraphSAGE untested |
+| node2vec implementation | PyTorch Geometric `Node2Vec`; own walks and skip-gram | Own walks and skip-gram in numpy and torch; `SAGEConv` from PyTorch Geometric | PyG's `Node2Vec` needs torch-cluster or pyg-lib, which have no plain PyPI CPU wheels; the own version is tested for edge-following and backtracking |
+| How arms are compared | Single train/test split; 5-fold out-of-fold on all HCPs with paired bootstrap intervals | 5-fold OOF, same folds for every arm, 200 paired bootstrap resamples | Five fits per arm, but a 0.005 AUC gap is no longer reported as a win; a single split moved the 5% capture count by 10+ |
+| Proof the lift is the network | None; random feature columns; HCPs shuffled across the same graph | Shuffled-graph control on the graph-features and full arms | Keeps the graph's structure and breaks the person-to-position link; costs two more arms per run |
+| Community granularity | Default Louvain (resolution 1); a finer level added | Both, resolution 1 (35 blocks) and 16 (408 communities) | Resolution 16 matches practice size; picked on structure, not tuned on conversion |
+
+### Data contracts
+
+| Stage | Input | Output |
+|---|---|---|
+| Generator to loader | `n_hcps`, `seed` | `hcps.csv`: `hcp_id` (int), `specialty`, `region` (str), `years_in_practice` (float, 7% missing), `annual_class_rx` (float), `decile` (int 1-10, equal volume shares), `converted` (0/1); `monthly_class_rx.csv`: `hcp_id` plus one float column per month `2024-07` to `2026-06` (1% missing); `edges.csv`: `src, dst` (int), `edge_type` (`co_treatment` or `referral`), `shared_patients` (int); `propensity_answer_key.npy`: float logit per HCP |
+| Profile | `hcps`, monthly Rx | `decile, log_annual_rx, rx_trend_3m, months_reported, years_in_practice` plus one-hot `spec_*`, `region_*` (float) |
+| Structure | directed and undirected graphs, community ids `(n, 2)` | `degree, referrals_in, referrals_out, shared_patients, pagerank, betweenness, clustering, nbr_mean_decile, nbr_mean_pagerank, nbr_max_pagerank, hub_ties, community_size_l0/l1, community_mean_decile_l0/l1` (float) |
+| Fold-built rates | adjacency, community ids, `converted`, training indices | `community_conv_rate_l0, community_conv_rate_l1, nbr_conv_rate, nbr_converted` (float), one frame per fold |
+| Embeddings | sparse adjacency (CSR); standardised profile matrix for GraphSAGE | `n2v_0..31`, `sage_0..31` (float) |
+| Ablation | feature blocks per arm, `converted`, 5 stratified folds | per arm: OOF score per HCP, fold AUCs, gain share per column; `ablation.csv`: `arm, auc, top_decile_lift, captured_5pct, captured_20pct, auc_fold_sd`; `deltas.csv`: `arm, vs, metric, delta, ci_low, ci_high` |
+
+### Failure modes and fallbacks
+
+| Failure | What the code does |
+|---|---|
+| Prescription months missing for an HCP (1% of HCP-months) | Volume and trend use `nanmean` over the months present, and `months_reported` goes into the model as its own feature, so a gap is visible rather than read as zero. |
+| `years_in_practice` missing (7% of HCPs) | XGBoost receives the NaN and learns its own split direction. For the GraphSAGE input the column is median-filled and a `_missing` indicator is added before standardising. |
+| Community or neighbourhood with few labelled HCPs | Conversion rates are shrunk toward the training base rate with a prior weight of 20, so a community with two known HCPs does not get a rate of 0 or 1. An HCP with no ties gets the base rate and zero converted neighbours. |
+| Answer key absent | `data.load` fills the true propensity with NaN and the ceiling row is skipped; every model arm still runs. |
+| Betweenness too slow on a large graph | Computed from 256 sampled sources (64 in the seed sweep and CI) rather than exactly. |
+| Outcome leaking into a feature | Guarded by construction and pinned by `tests/test_leakage.py`, which flips each HCP's own label and asserts its own feature row does not move. |
+| Model degrades or the market drifts | Not handled. Every run retrains from scratch on one snapshot; there is no drift monitoring or champion/challenger. Listed under limitations. |
+| Solver or LLM timeout | Not applicable: there is no solver, LLM, model server or network call in the pipeline. |
+
+### Path to production
+
+This is a mapping of each local piece to what would replace it in a deployed system, not a
+description of one that exists.
+
+| Here | Production equivalent |
+|---|---|
+| Seeded generator writing CSVs to `data/` | Licensed prescription and claims feeds landed in a warehouse (BigQuery, Snowflake or Redshift); shared-patient and referral ties derived there with SQL, refreshed monthly |
+| NetworkX graph and Louvain in memory | Same code on a larger machine up to a few hundred thousand HCPs; beyond that, a graph engine (Neo4j GDS or Spark GraphFrames) for PageRank, betweenness and community detection |
+| `make run` on a laptop | A monthly pipeline in Airflow or Step Functions: refresh ties, recompute structure and embeddings, rebuild conversion rates from the last campaign's outcomes, score, publish |
+| XGBoost retrained per run, nothing stored | Versioned model and feature definitions in a registry (MLflow, SageMaker or Vertex AI), promoted only if they beat the incumbent on a held-out cycle, with the shuffled-graph control kept as a release check |
+| Out-of-fold scores in `outputs/` | Batch scores written back to the CRM call-planning table, capped by rep capacity per territory |
+| `outputs/ablation.md` and `deltas.csv` | A campaign dashboard comparing the model's call list against the decile list, with a holdout of territories that keep the decile list so the lift is measured, not assumed |
+| Monitoring (not built) | Conversion rate by score decile, predicted vs observed, per cycle; feature drift on degree, community size and prescription trend; share of HCPs with no ties or no label history; an alert when top-decile lift falls below the decile list's |
+
 ## The problem
 
 A pharmaceutical brand launching into a crowded therapy class has a few hundred field reps
