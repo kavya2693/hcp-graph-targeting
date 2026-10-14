@@ -1,0 +1,478 @@
+{
+ "generated": "2026-10-14 14:15",
+ "commit": "719ffbfc4cf1d5bf57f19f9c80be25168ad972f6",
+ "checks": [
+  {
+   "id": "F-01",
+   "shown": "3 industry chips",
+   "type": "general-knowledge",
+   "status": "manual",
+   "computed": "-",
+   "reason": "Context statement, not a repo output."
+  },
+  {
+   "id": "F-02",
+   "shown": "4 problem cards",
+   "type": "general-knowledge",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-03",
+   "shown": "20,000 doctors / 20,000 HCPs",
+   "type": "direct",
+   "computed": "20,000",
+   "expect": "20,000",
+   "status": "pass"
+  },
+  {
+   "id": "F-04",
+   "shown": "75,155 ties",
+   "type": "direct",
+   "computed": "75,155",
+   "expect": "75,155",
+   "status": "pass"
+  },
+  {
+   "id": "F-05",
+   "shown": "Calls for just 1 in 20",
+   "type": "derived",
+   "computed": "1 in 20",
+   "expect": "1 in 20",
+   "status": "pass"
+  },
+  {
+   "id": "F-06",
+   "shown": "8 specialties \u00b7 12 regions",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-07",
+   "shown": "24 months of class prescriptions",
+   "type": "direct",
+   "computed": "24",
+   "expect": "24",
+   "status": "pass"
+  },
+  {
+   "id": "F-08",
+   "shown": "only 8.1% convert to the new drug / all 20,000 HCPs: 8.1%",
+   "type": "direct",
+   "computed": "8.1%",
+   "expect": "8.1%",
+   "status": "pass"
+  },
+  {
+   "id": "F-09",
+   "shown": "PRACTICES \u00b7 groups of about 50",
+   "type": "derived",
+   "computed": "49",
+   "expect": "49",
+   "status": "pass"
+  },
+  {
+   "id": "F-10",
+   "shown": "EVERY FOLD, 5 TIMES / Stratified 5-fold",
+   "type": "direct",
+   "computed": "5",
+   "expect": "5",
+   "status": "pass"
+  },
+  {
+   "id": "F-11",
+   "shown": "more converters \u00b7 shuffle-tested \u00b7 leak-tested",
+   "type": "derived",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-12",
+   "shown": "held-out AUC fell to 0.589",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-13",
+   "shown": "0.668",
+   "type": "direct",
+   "computed": "0.668",
+   "expect": "0.668",
+   "status": "pass"
+  },
+  {
+   "id": "F-14",
+   "shown": "and a test pins it",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-15",
+   "shown": "PRACTICE RATE 2 / 5",
+   "type": "illustrative",
+   "status": "manual",
+   "computed": "-",
+   "reason": "Illustrative drawing of features.py label_graph_features; not real HCPs."
+  },
+  {
+   "id": "F-16",
+   "shown": "generate(), profile_features(), louvain_communities(), structural_features(), label_graph_features(), node2vec, GraphSAGE, make_folds(), run_arm(), captured_at_budget(), summarise(), bootstrap_delta(), cli.py shuffled control",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-17",
+   "shown": "35 regions \u00b7 408 communities",
+   "type": "direct",
+   "computed": "35 \u00b7 408",
+   "expect": "35 \u00b7 408",
+   "status": "pass"
+  },
+  {
+   "id": "F-18",
+   "shown": "betweenness k=256",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-19",
+   "shown": "400 trees \u00b7 depth 4",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-20",
+   "shown": "nine model arms \u00b7 7 arms + 2 controls \u00b7 45 fits",
+   "type": "derived",
+   "computed": "45",
+   "expect": "45",
+   "status": "pass"
+  },
+  {
+   "id": "F-21",
+   "shown": "32-d walks \u00b7 2 \u00d7 SAGEConv",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-22",
+   "shown": "k = 1,000 \u00b7 4,000",
+   "type": "direct",
+   "computed": "1,000 \u00b7 4,000",
+   "expect": "1,000 \u00b7 4,000",
+   "status": "pass"
+  },
+  {
+   "id": "F-23",
+   "shown": "200 resamples \u00b7 95% CI",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-24",
+   "shown": "full run \u2248 403 s \u00b7 10-core laptop",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-25",
+   "shown": "CPU only, no GPU or API key / RUNS ON A LAPTOP CPU",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-26",
+   "shown": "fallback: decile, then annual Rx (today's list)",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-27",
+   "shown": "practice + peers \u00b7 no own label \u00b7 train labels only",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-28",
+   "shown": "generate() \u00b7 seed 7",
+   "type": "direct",
+   "computed": "7",
+   "expect": "7",
+   "status": "pass"
+  },
+  {
+   "id": "F-29",
+   "shown": "590 of 1,834 HCPs in one regional block \u00b7 1,304 ties",
+   "type": "direct",
+   "computed": "590 of 1,834 \u00b7 1,304",
+   "expect": "590 of 1,834 \u00b7 1,304",
+   "status": "pass"
+  },
+  {
+   "id": "F-30",
+   "shown": "9 of 59 15.3% \u00b7 7 of 68 10.3% \u00b7 6 of 60 10.0% \u00b7 4 of 64 6.2% \u00b7 4 of 87 4.6% \u00b7 4 of 97 4.1% \u00b7 2 of 78 2.6% \u00b7 2 of 79 2.5%",
+   "type": "direct",
+   "computed": "9 of 59 15.3% \u00b7 7 of 68 10.3% \u00b7 6 of 60 10.0% \u00b7 4 of 64 6.2% \u00b7 4 of 87 4.6% \u00b7 4 of 97 4.1% \u00b7 2 of 78 2.6% \u00b7 2 of 79 2.5%",
+   "expect": "9 of 59 15.3% \u00b7 7 of 68 10.3% \u00b7 6 of 60 10.0% \u00b7 4 of 64 6.2% \u00b7 4 of 87 4.6% \u00b7 4 of 97 4.1% \u00b7 2 of 78 2.6% \u00b7 2 of 79 2.5%",
+   "status": "pass"
+  },
+  {
+   "id": "F-31",
+   "shown": "\u25cf converted \u00b7 \u25cf not yet",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-32",
+   "shown": "126 \u00b7 0.623",
+   "type": "direct",
+   "computed": "126 \u00b7 0.623",
+   "expect": "126 \u00b7 0.623",
+   "status": "pass"
+  },
+  {
+   "id": "F-33",
+   "shown": "166 \u00b7 0.641",
+   "type": "direct",
+   "computed": "166 \u00b7 0.641",
+   "expect": "166 \u00b7 0.641",
+   "status": "pass"
+  },
+  {
+   "id": "F-34",
+   "shown": "188 \u00b7 0.658",
+   "type": "direct",
+   "computed": "188 \u00b7 0.658",
+   "expect": "188 \u00b7 0.658",
+   "status": "pass"
+  },
+  {
+   "id": "F-35",
+   "shown": "189 \u00b7 0.668",
+   "type": "direct",
+   "computed": "189 \u00b7 0.668",
+   "expect": "189 \u00b7 0.668",
+   "status": "pass"
+  },
+  {
+   "id": "F-36",
+   "shown": "202 \u00b7 0.676",
+   "type": "direct",
+   "computed": "202 \u00b7 0.676",
+   "expect": "202 \u00b7 0.676",
+   "status": "pass"
+  },
+  {
+   "id": "F-37",
+   "shown": "212 \u00b7 0.674",
+   "type": "direct",
+   "computed": "212 \u00b7 0.674",
+   "expect": "212 \u00b7 0.674",
+   "status": "pass"
+  },
+  {
+   "id": "F-38",
+   "shown": "146 \u00b7 0.633",
+   "type": "direct",
+   "computed": "146 \u00b7 0.633",
+   "expect": "146 \u00b7 0.633",
+   "status": "pass"
+  },
+  {
+   "id": "F-39",
+   "shown": "322 \u00b7 0.761",
+   "type": "direct",
+   "computed": "322 \u00b7 0.761",
+   "expect": "322 \u00b7 0.761",
+   "status": "pass"
+  },
+  {
+   "id": "F-40",
+   "shown": "#1 HCP 16728 \u2026 #6 HCP 04338",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-41",
+   "shown": "+ 994 more on this plan",
+   "type": "derived",
+   "computed": "994",
+   "expect": "994",
+   "status": "pass"
+  },
+  {
+   "id": "F-42",
+   "shown": "848 of the 1,000 are not in the decile list's top 1,000",
+   "type": "derived",
+   "computed": "848",
+   "expect": "848",
+   "status": "pass"
+  },
+  {
+   "id": "F-43",
+   "shown": "1,000 calls \u00b7 189 converters reached \u00b7 decile list: 126",
+   "type": "direct",
+   "computed": "189 \u00b7 126",
+   "expect": "189 \u00b7 126",
+   "status": "pass"
+  },
+  {
+   "id": "F-44",
+   "shown": "29 of 100 HCPs here are planned \u00b7 called: 29 \u00b7 switched: 6",
+   "type": "direct",
+   "computed": "29 of 100 \u00b7 6",
+   "expect": "29 of 100 \u00b7 6",
+   "status": "pass"
+  },
+  {
+   "id": "F-45",
+   "shown": "TOP 1,000 OF 20,000 HCPS",
+   "type": "direct",
+   "computed": "1,000 of 20,000",
+   "expect": "1,000 of 20,000",
+   "status": "pass"
+  },
+  {
+   "id": "F-46",
+   "shown": "+50% \u00b7 decile list 126 \u2192 189",
+   "type": "derived",
+   "computed": "+50%",
+   "expect": "+50%",
+   "status": "pass"
+  },
+  {
+   "id": "F-47",
+   "shown": "0.641 \u2192 0.668 \u00b7 +0.027 [+0.018, +0.037]",
+   "type": "direct",
+   "computed": "+0.027 [+0.018, +0.037]",
+   "expect": "+0.027 [+0.018, +0.037]",
+   "status": "pass"
+  },
+  {
+   "id": "F-48",
+   "shown": "0.633 \u00b7 below profile-only 0.641",
+   "type": "direct",
+   "computed": "0.633 \u00b7 0.633 \u00b7 0.641",
+   "expect": "0.633 \u00b7 0.633 \u00b7 0.641",
+   "status": "pass"
+  },
+  {
+   "id": "F-49",
+   "shown": "44% \u00b7 126 \u2192 212 of 322",
+   "type": "derived",
+   "computed": "44%",
+   "expect": "44%",
+   "status": "pass"
+  },
+  {
+   "id": "F-50",
+   "shown": "+0.025 to +0.039 AUC",
+   "type": "derived",
+   "computed": "+0.025 to +0.039",
+   "expect": "+0.025 to +0.039",
+   "status": "pass"
+  },
+  {
+   "id": "F-51",
+   "shown": "+0.027",
+   "type": "direct",
+   "computed": "+0.027 [+0.018, +0.037]",
+   "expect": "+0.027 [+0.018, +0.037]",
+   "status": "pass"
+  },
+  {
+   "id": "F-52",
+   "shown": "+0.008",
+   "type": "direct",
+   "computed": "+0.008 [-0.000, +0.014]",
+   "expect": "+0.008 [-0.000, +0.014]",
+   "status": "pass"
+  },
+  {
+   "id": "F-53",
+   "shown": "-0.002",
+   "type": "direct",
+   "computed": "-0.002 [-0.008, +0.003]",
+   "expect": "-0.002 [-0.008, +0.003]",
+   "status": "pass"
+  },
+  {
+   "id": "F-54",
+   "shown": "+0.005",
+   "type": "direct",
+   "computed": "+0.005 [-0.002, +0.012]",
+   "expect": "+0.005 [-0.002, +0.012]",
+   "status": "pass"
+  },
+  {
+   "id": "F-55",
+   "shown": "-0.010",
+   "type": "direct",
+   "computed": "-0.010 [-0.020, -0.001]",
+   "expect": "-0.010 [-0.020, -0.001]",
+   "status": "pass"
+  },
+  {
+   "id": "F-56",
+   "shown": "61% \u00b7 node2vec 40% \u00b7 SAGE 21%",
+   "type": "derived",
+   "computed": "61% \u00b7 40% \u00b7 21%",
+   "expect": "61% \u00b7 40% \u00b7 21%",
+   "status": "pass"
+  },
+  {
+   "id": "F-57",
+   "shown": "MIT",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-58",
+   "shown": "XGBoost \u00b7 NetworkX \u00b7 PyTorch Geometric \u00b7 Python",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-59",
+   "shown": "$ make run   # 20,000 HCPs, 9 arms, 5 folds",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  }
+ ]
+}

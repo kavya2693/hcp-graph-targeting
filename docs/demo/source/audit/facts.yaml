@@ -1,0 +1,450 @@
+# Audit facts for the hcp-graph-targeting demo video.
+# Read by tools/build_audit_report.py (docs/demo/source/tools/).
+#
+# Check expressions are Python, evaluated with these helpers (paths relative to the repo root;
+# a "demo:" prefix means relative to the demo project folder):
+#   R(path) -> pandas DataFrame from CSV      J(path) -> parsed JSON
+#   row(path, **eq) -> the single CSV row matching all equalities (a pandas Series)
+#   T(path) -> file text                      grep(path, regex) -> True/False
+# A check passes when fmt.format(value) == expect (or, with fmt "bool", when value is True).
+
+project:
+  name: hcp-graph-targeting
+  title: "hcp-graph-targeting: demo video audit report"
+  repo_url: https://github.com/kavya2693/hcp-graph-targeting
+  repo_dir: ../../../..          # paths are relative to this file
+  demo_dir: ..
+  demo_display: docs/demo/source
+  out_dir: ../..
+  video: docs/demo/demo.mp4
+  video_duration_s: 88.0
+  outputs_dir: outputs
+  venv_python: .venv/bin/python
+  version_packages: [xgboost, networkx, torch, torch_geometric, sklearn, pandas, numpy]
+  regenerate:
+    - "make run                                   # data/ + outputs/ablation.csv, deltas.csv, feature_importance.csv, summary.json"
+    - "uv run python scripts/seed_sweep.py        # outputs/seed_sweep.csv/.txt (seeds 11, 23)"
+    - ".venv/bin/python docs/demo/source/tools/export_call_plan.py docs/demo/source/assets/call_plan.json   # ~30 s; asserts AUC + captured match ablation.csv"
+    - "python3 docs/demo/source/tools/inject_sheet.py docs/demo/source/assets/call_plan.json docs/demo/source/compositions --rows 1,2,3,4,5,6"
+    - "cd docs/demo/source && npx --yes hyperframes@0.8.156 check && npx --yes hyperframes@0.8.156 render -f 30 -q looks -o renders/hcp-graph-targeting-master.mp4 && cd -"
+    - "ffmpeg -y -i docs/demo/source/renders/hcp-graph-targeting-master.mp4 -c:v libx264 -preset slow -crf 25 -pix_fmt yuv420p -movflags +faststart -an docs/demo/demo.mp4"
+    - "python3 docs/demo/source/tools/build_audit_report.py docs/demo/source/audit/facts.yaml   # stills, checks, MD/DOCX/PDF"
+  seeds: {data_seed: 7, cv_folds: 5, louvain_seed: 7, xgboost_seed: 7, bootstrap_resamples: 200}
+  run_time: "summary.json runtime_seconds = 12,278.9 s (3.4 h) for the captured make run on a shared machine; README reports 403 s for a full run on an idle 10-core laptop. The demo's export re-run of one arm took about 30 s."
+
+assumptions:
+  - id: A-01
+    statement: "All data is synthetic, produced by a seeded generator (20,000 HCPs, 8 specialties, 12 regions, about 440 practice groups, 24 months of class prescriptions, 75,155 ties). Real HCP prescribing and claims data is proprietary and not used."
+    source: "src/hcp_targeting/data.py:78-206 (generate, seed 7); scripts/generate_data.py; README 'The data'"
+    all_figures: true
+    edit: ["src/hcp_targeting/data.py", "scripts/generate_data.py"]
+    rerun: ["make data", "make run", "export_call_plan.py + inject_sheet.py"]
+  - id: A-02
+    statement: "The generator decides how much the network matters: conversion depends on hidden practice-group culture (sd 0.75 log-odds) and exposure to advocate key opinion leaders (+1.3 log-odds at full exposure). The size of the graph lift is a property of the generator, not evidence about a real market."
+    source: "src/hcp_targeting/data.py:96-98, :181-191; README 'Known limitations' (biggest gap)"
+    figures: [F-13, F-29, F-30, F-32, F-33, F-34, F-35, F-36, F-37, F-38, F-39, F-43, F-46, F-47, F-48, F-49, F-50]
+    edit: ["src/hcp_targeting/data.py:98, :188-189"]
+    rerun: ["make run", "export_call_plan.py + inject_sheet.py"]
+  - id: A-03
+    statement: "A call budget is 5% (1,000 calls) or 20% (4,000 calls) of the 20,000 HCPs; 'converters reached' assumes the call is what converts the HCP (the model ranks propensity, not uplift from calling)."
+    source: "src/hcp_targeting/cli.py:199-200 (--budget-small 0.05, --budget-large 0.20); evaluate.py:23-26 (captured_at_budget); README 'Known limitations'"
+    figures: [F-05, F-22, F-32, F-33, F-34, F-35, F-36, F-37, F-38, F-39, F-41, F-42, F-43, F-44, F-45, F-46, F-49]
+    edit: ["src/hcp_targeting/cli.py:199-200"]
+    rerun: ["make run", "export_call_plan.py + inject_sheet.py"]
+  - id: A-04
+    statement: "Label-derived features (community and neighbour conversion rates) are rebuilt inside every outer fold from training labels only, with an inner 5-fold split and a prior weight of 20; embeddings are trained without labels."
+    source: "src/hcp_targeting/features.py:153-184 (label_graph_features); evaluate.py:126-130; docs/adr/0001"
+    figures: [F-10, F-11, F-12, F-13, F-27, F-35, F-40]
+    edit: ["src/hcp_targeting/features.py:153-184", "src/hcp_targeting/evaluate.py:129 (prior_weight)"]
+    rerun: ["make run", "export_call_plan.py + inject_sheet.py"]
+  - id: A-05
+    statement: "Louvain runs at resolution 1 (regional blocks) and 16 (practice-size communities); 16 was chosen to match practice size, not tuned on conversion."
+    source: "src/hcp_targeting/features.py:60-76; README line 161"
+    figures: [F-09, F-17, F-29, F-30, F-44]
+    edit: ["src/hcp_targeting/features.py:60"]
+    rerun: ["make run", "export_call_plan.py + inject_sheet.py"]
+  - id: A-06
+    statement: "Betweenness is estimated from 256 sampled sources (64 in the seed sweep)."
+    source: "src/hcp_targeting/cli.py:198; features.py:89-91; scripts/seed_sweep.py:47"
+    figures: [F-18, F-50]
+    edit: ["src/hcp_targeting/cli.py:198"]
+    rerun: ["make run"]
+  - id: A-07
+    statement: "Every arm uses one XGBoost setting (400 trees, depth 4, learning rate 0.03, seed 7) on the same 5 stratified folds; 7 arms plus 2 shuffled-graph controls = 45 fits."
+    source: "src/hcp_targeting/evaluate.py:65-99, :143-144; cli.py:82-104"
+    figures: [F-13, F-19, F-20, F-32, F-33, F-34, F-35, F-36, F-37, F-38, F-39, F-46, F-47, F-48]
+    edit: ["src/hcp_targeting/evaluate.py:85-98"]
+    rerun: ["make run", "export_call_plan.py + inject_sheet.py"]
+  - id: A-08
+    statement: "The shuffled-graph control moves every HCP to a random node of the same graph (seed 8 permutation): structure is unchanged, the person-position link is broken."
+    source: "src/hcp_targeting/cli.py:93-104"
+    figures: [F-11, F-38, F-48]
+    edit: ["src/hcp_targeting/cli.py:93-104"]
+    rerun: ["make run"]
+  - id: A-09
+    statement: "The ceiling row scores HCPs by the generator's true propensity (answer key), which no feature reads."
+    source: "src/hcp_targeting/cli.py:106-107; data.py:42-43, :221-226"
+    figures: [F-39, F-49]
+    edit: ["src/hcp_targeting/data.py"]
+    rerun: ["make run"]
+  - id: A-10
+    statement: "The call plan on slide 07 ranks the arm '+ community and neighbour conversion rates' (hand-built graph features, no embeddings) by its out-of-fold scores; the demo's export re-runs that arm and asserts AUC 0.668 and 189 / 126 converters captured match outputs/ablation.csv."
+    source: "docs/demo/source/tools/export_call_plan.py"
+    figures: [F-40, F-41, F-42, F-43, F-44, F-45]
+    edit: ["docs/demo/source/tools/export_call_plan.py (arm, CALLS)"]
+    rerun: ["export_call_plan.py + inject_sheet.py", "hyperframes render"]
+  - id: A-11
+    statement: "Video rounding: AUC to 3 decimals, AUC deltas to 3 decimals with sign, percentages to 1 decimal (community rates, 8.1%) or whole numbers (+50%, 44%, 61%, 40%, 21%, practice rate on slide 07), counts with thousands separators; '1 in 20' = 5% budget; '≈403 s' quotes the README."
+    source: "this audit (display convention)"
+    figures: [F-05, F-08, F-30, F-46, F-49, F-50, F-51, F-52, F-53, F-54, F-55, F-56]
+    edit: ["the composition file named on each slide"]
+    rerun: ["hyperframes render"]
+  - id: A-12
+    statement: "Slide 01 (industry, everyday problems) is general pharma-commercial knowledge used as context, consistent with README 'The problem'. It carries no numbers and is not a repo result."
+    source: "author's framing; README 'The problem'"
+    figures: [F-01, F-02]
+    edit: ["compositions/s01-context.html"]
+    rerun: ["hyperframes render"]
+
+figures:
+  # ---- slide 01
+  - {id: F-01, slides: ["01"], label: "Who lives with this: pharma launch teams, field sales & commercial ops, specialty & device makers", shown: "3 industry chips", type: general-knowledge, source: "author's framing", key: "-", formula: "-", manual: "Context statement, not a repo output."}
+  - {id: F-02, slides: ["01"], label: "Four everyday problems (few calls, decile-ranked lists, loyal heavy writers, peer adoption)", shown: "4 problem cards", type: general-knowledge, source: "README 'The problem'", key: "README lines 11-26", formula: "-",
+     check: {expr: "grep('README.md', r'fixed number of calls') and grep('README.md', r'prescription-volume deciles') and grep('README.md', r'entrenched on the incumbent') and grep('README.md', r'Doctors adopt when the people they share patients')", fmt: bool}}
+  # ---- slide 02
+  - {id: F-03, slides: ["02", "05", "07", "10"], label: "HCPs in the network", shown: "20,000 doctors / 20,000 HCPs", type: direct, source: "outputs/summary.json", key: "n_hcps", formula: "-",
+     check: {expr: "J('outputs/summary.json')['n_hcps']", fmt: "{:,d}", expect: "20,000"}}
+  - {id: F-04, slides: ["02", "05"], label: "Ties between HCPs (co-treatment + referral edges)", shown: "75,155 ties", type: direct, source: "outputs/summary.json; data/edges.csv", key: "n_edges", formula: "-",
+     check: {expr: "J('outputs/summary.json')['n_edges'] if len(R('data/edges.csv')) == J('outputs/summary.json')['n_edges'] else -1", fmt: "{:,d}", expect: "75,155"}}
+  - {id: F-05, slides: ["02"], label: "Small call budget as a share of HCPs", shown: "Calls for just 1 in 20", type: derived, source: "outputs/summary.json", key: "budgets.captured_5pct = 1,000; n_hcps = 20,000", formula: "20,000 / 1,000 = 20",
+     check: {expr: "J('outputs/summary.json')['n_hcps'] // J('outputs/summary.json')['budgets']['captured_5pct']", fmt: "1 in {:d}", expect: "1 in 20"}}
+  - {id: F-06, slides: ["02"], label: "Specialties and regions", shown: "8 specialties · 12 regions", type: direct, source: "data/hcps.csv", key: "specialty, region (distinct values)", formula: "-",
+     check: {expr: "R('data/hcps.csv')['specialty'].nunique() == 8 and R('data/hcps.csv')['region'].nunique() == 12", fmt: bool}}
+  - {id: F-07, slides: ["02", "05"], label: "Months of therapeutic-class prescriptions", shown: "24 months of class prescriptions", type: direct, source: "data/monthly_class_rx.csv", key: "month columns (2024-07..2026-06)", formula: "columns - hcp_id",
+     check: {expr: "len(R('data/monthly_class_rx.csv').columns) - 1", fmt: "{:d}", expect: "24"}}
+  - {id: F-08, slides: ["02", "06"], label: "Conversion rate", shown: "only 8.1% convert to the new drug / all 20,000 HCPs: 8.1%", type: direct, source: "outputs/summary.json", key: "conversion_rate = 0.08085 (1,617 of 20,000)", formula: "rounded to 1 decimal",
+     check: {expr: "J('outputs/summary.json')['conversion_rate']", fmt: "{:.1%}", expect: "8.1%"}}
+  # ---- slide 03
+  - {id: F-09, slides: ["03"], label: "Practice-size communities", shown: "PRACTICES · groups of about 50", type: derived, source: "outputs/summary.json; README line 161", key: "communities_per_level[1] = 408", formula: "20,000 / 408 = 49",
+     check: {expr: "round(J('outputs/summary.json')['n_hcps'] / J('outputs/summary.json')['communities_per_level'][1])", fmt: "{:d}", expect: "49"}}
+  - {id: F-10, slides: ["03", "05"], label: "Cross-validation folds", shown: "EVERY FOLD, 5 TIMES / Stratified 5-fold", type: direct, source: "outputs/summary.json", key: "folds", formula: "-",
+     check: {expr: "J('outputs/summary.json')['folds']", fmt: "{:d}", expect: "5"}}
+  - {id: F-11, slides: ["03"], label: "Call list badges: more converters, shuffle-tested, leak-tested", shown: "more converters · shuffle-tested · leak-tested", type: derived, source: "outputs/ablation.csv; tests/test_leakage.py", key: "captured_5pct graph features > decile list; control rows present; leakage tests exist", formula: "189 > 126",
+     check: {expr: "abl('+ community and neighbour conversion rates')['captured_5pct'] > abl('decile list (no model)')['captured_5pct'] and R('outputs/ablation.csv')['arm'].str.startswith('control, HCPs shuffled').sum() == 2 and grep('tests/test_leakage.py', r'def test_')", fmt: bool}}
+  # ---- slide 04
+  - {id: F-12, slides: ["04"], label: "Held-out AUC of the first (leave-one-out) version", shown: "held-out AUC fell to 0.589", type: direct, source: "docs/adr/0001-graph-features-built-fold-safe-embeddings-label-free.md:17", key: "ADR text", formula: "-",
+     check: {expr: "grep('docs/adr/0001-graph-features-built-fold-safe-embeddings-label-free.md', r'from 0\\.641 to 0\\.589')", fmt: bool}}
+  - {id: F-13, slides: ["04", "08"], label: "AUC, profile + graph features (fold-built rates)", shown: "0.668", type: direct, source: "outputs/ablation.csv", key: "arm='+ community and neighbour conversion rates', auc", formula: "-",
+     check: {expr: "abl('+ community and neighbour conversion rates')['auc']", fmt: "{:.3f}", expect: "0.668"}}
+  - {id: F-14, slides: ["04"], label: "A test pins the no-own-label property", shown: "and a test pins it", type: direct, source: "tests/test_leakage.py", key: "own-label flip test", formula: "-",
+     check: {expr: "grep('tests/test_leakage.py', r'def test_') and grep('tests/test_leakage.py', r'own')", fmt: bool}}
+  - {id: F-15, slides: ["04"], label: "Practice demo: 5 peers, 2 switched, own outcome hidden", shown: "PRACTICE RATE 2 / 5", type: illustrative, source: "schematic", key: "-", formula: "-", manual: "Illustrative drawing of features.py label_graph_features; not real HCPs."}
+  # ---- slide 05
+  - {id: F-16, slides: ["05"], label: "Every architecture box maps to a real function in the repo", shown: "generate(), profile_features(), louvain_communities(), structural_features(), label_graph_features(), node2vec, GraphSAGE, make_folds(), run_arm(), captured_at_budget(), summarise(), bootstrap_delta(), cli.py shuffled control", type: direct, source: "src/hcp_targeting/", key: "def names", formula: "-",
+     check: {expr: "all(grep('src/hcp_targeting/' + f, p) for f, p in [('data.py', r'def generate'), ('features.py', r'def profile_features'), ('features.py', r'def louvain_communities'), ('features.py', r'def structural_features'), ('features.py', r'def label_graph_features'), ('embeddings.py', r'def node2vec_embeddings'), ('embeddings.py', r'def graphsage_embeddings'), ('evaluate.py', r'def make_folds'), ('evaluate.py', r'def run_arm'), ('evaluate.py', r'def captured_at_budget'), ('evaluate.py', r'def summarise'), ('evaluate.py', r'def bootstrap_delta'), ('cli.py', r'permutation')])", fmt: bool}}
+  - {id: F-17, slides: ["05"], label: "Louvain communities at the two resolutions", shown: "35 regions · 408 communities", type: direct, source: "outputs/summary.json", key: "communities_per_level", formula: "-",
+     check: {expr: "' · '.join(str(x) for x in J('outputs/summary.json')['communities_per_level'])", fmt: "{}", expect: "35 · 408"}}
+  - {id: F-18, slides: ["05"], label: "Betweenness sample size", shown: "betweenness k=256", type: direct, source: "src/hcp_targeting/cli.py:198", key: "--betweenness-k default", formula: "-",
+     check: {expr: "grep('src/hcp_targeting/cli.py', r'--betweenness-k\", type=int, default=256')", fmt: bool}}
+  - {id: F-19, slides: ["05"], label: "XGBoost settings", shown: "400 trees · depth 4", type: direct, source: "src/hcp_targeting/evaluate.py:88-90", key: "n_estimators, max_depth", formula: "-",
+     check: {expr: "grep('src/hcp_targeting/evaluate.py', r'n_estimators=400') and grep('src/hcp_targeting/evaluate.py', r'max_depth=4')", fmt: bool}}
+  - {id: F-20, slides: ["05"], label: "Arms, controls and fits", shown: "nine model arms · 7 arms + 2 controls · 45 fits", type: derived, source: "src/hcp_targeting/evaluate.py (ARMS); cli.py:98 (ARMS[2], ARMS[5]); outputs/ablation.csv", key: "7 Arm(...) + 2 control rows", formula: "(7 + 2) x 5 folds = 45",
+     check: {expr: "(T('src/hcp_targeting/evaluate.py').count('    Arm(') + R('outputs/ablation.csv')['arm'].str.startswith('control').sum()) * J('outputs/summary.json')['folds']", fmt: "{:d}", expect: "45"},
+     note: "7 arms: T().count('    Arm(') counts the seven entries of ARMS (the dataclass definition line is 'class Arm:')."}
+  - {id: F-21, slides: ["05"], label: "Embedding sizes", shown: "32-d walks · 2 × SAGEConv", type: direct, source: "src/hcp_targeting/cli.py:197; embeddings.py:131-133", key: "--dim 32; conv1, conv2 = SAGEConv", formula: "-",
+     check: {expr: "grep('src/hcp_targeting/cli.py', r'--dim\", type=int, default=32') and T('src/hcp_targeting/embeddings.py').count('= SAGEConv(') == 2", fmt: bool}}
+  - {id: F-22, slides: ["05"], label: "Call budgets", shown: "k = 1,000 · 4,000", type: direct, source: "outputs/summary.json", key: "budgets", formula: "-",
+     check: {expr: "'{:,} · {:,}'.format(J('outputs/summary.json')['budgets']['captured_5pct'], J('outputs/summary.json')['budgets']['captured_20pct'])", fmt: "{}", expect: "1,000 · 4,000"}}
+  - {id: F-23, slides: ["05", "08"], label: "Bootstrap resamples", shown: "200 resamples · 95% CI", type: direct, source: "src/hcp_targeting/cli.py:201; evaluate.py:52", key: "--n-boot default 200; percentiles 2.5/97.5", formula: "-",
+     check: {expr: "grep('src/hcp_targeting/cli.py', r'--n-boot\", type=int, default=200') and grep('src/hcp_targeting/evaluate.py', r'\\[2\\.5, 97\\.5\\]')", fmt: bool}}
+  - {id: F-24, slides: ["05"], label: "Full-run time", shown: "full run ≈ 403 s · 10-core laptop", type: direct, source: "README line 178", key: "README text", formula: "-",
+     check: {expr: "grep('README.md', r'A full run took 403 s on this 10-core laptop')", fmt: bool},
+     note: "README states this for an earlier session; the captured run in outputs/ took 12,279 s (3.4 h) on a shared machine (summary.json runtime_seconds)."}
+  - {id: F-25, slides: ["05", "10"], label: "No GPU or API key", shown: "CPU only, no GPU or API key / RUNS ON A LAPTOP CPU", type: direct, source: "README 'Running it'", key: "README text", formula: "-",
+     check: {expr: "grep('README.md', r'No API key, model server or GPU is needed')", fmt: bool}}
+  - {id: F-26, slides: ["05"], label: "Fallback = today's decile list", shown: "fallback: decile, then annual Rx (today's list)", type: direct, source: "src/hcp_targeting/cli.py:83-84", key: "rule = decile * 1e6 + annual_class_rx", formula: "-",
+     check: {expr: "grep('src/hcp_targeting/cli.py', r'rule = ds.hcps\\[\"decile\"\\].to_numpy\\(\\) \\* 1e6 \\+ ds.hcps\\[\"annual_class_rx\"\\]')", fmt: bool}}
+  - {id: F-27, slides: ["05"], label: "Conversion rates never use the HCP's own label", shown: "practice + peers · no own label · train labels only", type: direct, source: "src/hcp_targeting/features.py:153-184; tests/test_leakage.py", key: "inner_folds = 5", formula: "-",
+     check: {expr: "grep('src/hcp_targeting/features.py', r'inner_folds: int = 5') and grep('src/hcp_targeting/features.py', r'no HCP ever sees its own outcome')", fmt: bool}}
+  - {id: F-28, slides: ["05"], label: "Data seed", shown: "generate() · seed 7", type: direct, source: "outputs/summary.json", key: "seed", formula: "-",
+     check: {expr: "J('outputs/summary.json')['seed']", fmt: "{:d}", expect: "7"}}
+  # ---- slide 06
+  - {id: F-29, slides: ["06"], label: "Network sample shown", shown: "590 of 1,834 HCPs in one regional block · 1,304 ties", type: direct, source: "demo assets/call_plan.json (network_sample), exported by tools/export_call_plan.py from Louvain on data/edges.csv", key: "len(nodes), l0_size, len(edges)", formula: "8 largest level-1 communities of the 5th-largest level-0 block",
+     check: {expr: "(lambda s: '{} of {:,} · {:,}'.format(len(s['nodes']), s['l0_size'], len(s['edges'])))(J('demo:assets/call_plan.json')['network_sample'])", fmt: "{}", expect: "590 of 1,834 · 1,304"}}
+  - {id: F-30, slides: ["06"], label: "Converted share by community (sorted)", shown: "9 of 59 15.3% · 7 of 68 10.3% · 6 of 60 10.0% · 4 of 64 6.2% · 4 of 87 4.6% · 4 of 97 4.1% · 2 of 78 2.6% · 2 of 79 2.5%", type: direct, source: "demo assets/call_plan.json (network_sample.communities); labels from data/hcps.csv converted", key: "converted, size, rate", formula: "rate = converted / size",
+     check: {expr: "' · '.join('{} of {} {:.1f}%'.format(c['converted'], c['size'], 100 * c['converted'] / c['size']) for c in sorted(J('demo:assets/call_plan.json')['network_sample']['communities'], key=lambda c: -c['rate']))", fmt: "{}", expect: "9 of 59 15.3% · 7 of 68 10.3% · 6 of 60 10.0% · 4 of 64 6.2% · 4 of 87 4.6% · 4 of 97 4.1% · 2 of 78 2.6% · 2 of 79 2.5%"},
+     note: "Counts are over the whole level-1 community. One community (6 of 60) has 2 members outside the sampled regional block, so the panel draws 58 of its 60 HCPs; all 6 converters are inside. Node labels are re-checked against data/hcps.csv by sample_labels_match() (F-31)."}
+  - {id: F-31, slides: ["06"], label: "Node colours/labels in the sample match data/hcps.csv", shown: "● converted · ● not yet", type: direct, source: "data/hcps.csv; demo assets/call_plan.json", key: "converted per hcp_id", formula: "-",
+     check: {expr: "sample_labels_match()", fmt: bool}}
+  - {id: F-32, slides: ["06"], label: "Ladder: decile list", shown: "126 · 0.623", type: direct, source: "outputs/ablation.csv", key: "arm='decile list (no model)': captured_5pct, auc", formula: "-", check: {expr: "lad('decile list (no model)')", fmt: "{}", expect: "126 · 0.623"}}
+  - {id: F-33, slides: ["06"], label: "Ladder: profile + decile (XGBoost)", shown: "166 · 0.641", type: direct, source: "outputs/ablation.csv", key: "captured_5pct, auc", formula: "-", check: {expr: "lad('profile + decile (XGBoost)')", fmt: "{}", expect: "166 · 0.641"}}
+  - {id: F-34, slides: ["06"], label: "Ladder: + centrality and community structure", shown: "188 · 0.658", type: direct, source: "outputs/ablation.csv", key: "captured_5pct, auc", formula: "-", check: {expr: "lad('+ centrality and community structure')", fmt: "{}", expect: "188 · 0.658"}}
+  - {id: F-35, slides: ["06"], label: "Ladder: + community and neighbour conversion rates (graph features)", shown: "189 · 0.668", type: direct, source: "outputs/ablation.csv", key: "captured_5pct, auc", formula: "-", check: {expr: "lad('+ community and neighbour conversion rates')", fmt: "{}", expect: "189 · 0.668"}}
+  - {id: F-36, slides: ["06"], label: "Ladder: graph features + node2vec", shown: "202 · 0.676", type: direct, source: "outputs/ablation.csv", key: "captured_5pct, auc", formula: "-", check: {expr: "lad('graph features + node2vec')", fmt: "{}", expect: "202 · 0.676"}}
+  - {id: F-37, slides: ["06", "08"], label: "Ladder: graph features + node2vec + GraphSAGE", shown: "212 · 0.674", type: direct, source: "outputs/ablation.csv", key: "captured_5pct, auc", formula: "-", check: {expr: "lad('graph features + node2vec + GraphSAGE')", fmt: "{}", expect: "212 · 0.674"}}
+  - {id: F-38, slides: ["06", "08"], label: "Ladder: shuffled control (graph features)", shown: "146 · 0.633", type: direct, source: "outputs/ablation.csv", key: "arm='control, HCPs shuffled across the graph: + community and neighbour conversion rates'", formula: "-", check: {expr: "lad('control, HCPs shuffled across the graph: + community and neighbour conversion rates')", fmt: "{}", expect: "146 · 0.633"}}
+  - {id: F-39, slides: ["06", "08"], label: "Ladder: ceiling (true propensity)", shown: "322 · 0.761", type: direct, source: "outputs/ablation.csv", key: "arm='ceiling: true propensity (answer key)'", formula: "-", check: {expr: "lad('ceiling: true propensity (answer key)')", fmt: "{}", expect: "322 · 0.761"}}
+  # ---- slide 07
+  - {id: F-40, slides: ["07"], label: "Six call-plan rows (rank, HCP id, specialty, region, decile, decile-list rank, score, practice rate, converted peers)", shown: "#1 HCP 16728 … #6 HCP 04338", type: direct, source: "demo assets/call_plan.json, injected into compositions/value.html", key: "plan ranks 1-6", formula: "score = out-of-fold p(convert); practice rate = fold-built community_conv_rate_l1 as the HCP saw it when held out; PEERS ✓ = nbr_converted",
+     check: {expr: "sheet_rows_match()", fmt: bool}}
+  - {id: F-41, slides: ["07"], label: "HCPs on the plan not shown", shown: "+ 994 more on this plan", type: derived, source: "demo assets/call_plan.json", key: "calls - 6 rows", formula: "1,000 - 6 = 994",
+     check: {expr: "J('demo:assets/call_plan.json')['calls'] - 6", fmt: "{:,d}", expect: "994"}}
+  - {id: F-42, slides: ["07"], label: "Plan HCPs outside the decile list's top 1,000", shown: "848 of the 1,000 are not in the decile list's top 1,000", type: derived, source: "demo assets/call_plan.json", key: "plan[].decile_rank > 1,000", formula: "count",
+     check: {expr: "sum(p['decile_rank'] > 1000 for p in J('demo:assets/call_plan.json')['plan'])", fmt: "{:d}", expect: "848"}}
+  - {id: F-43, slides: ["07"], label: "Converters reached by the plan vs the decile list", shown: "1,000 calls · 189 converters reached · decile list: 126", type: direct, source: "demo assets/call_plan.json; outputs/ablation.csv", key: "captured, captured_decile_list (equal to ablation.csv captured_5pct)", formula: "-",
+     check: {expr: "(lambda d: '{} · {}'.format(d['captured'], d['captured_decile_list']) if d['captured'] == abl('+ community and neighbour conversion rates')['captured_5pct'] and d['captured_decile_list'] == abl('decile list (no model)')['captured_5pct'] else 'mismatch')(J('demo:assets/call_plan.json'))", fmt: "{}", expect: "189 · 126"}}
+  - {id: F-44, slides: ["07"], label: "Scene community: planned HCPs and switched", shown: "29 of 100 HCPs here are planned · called: 29 · switched: 6", type: direct, source: "demo assets/call_plan.json (scene)", key: "size, planned, planned_converted", formula: "-",
+     check: {expr: "(lambda s: '{} of {} · {}'.format(s['planned'], s['size'], s['planned_converted']))(J('demo:assets/call_plan.json')['scene'])", fmt: "{}", expect: "29 of 100 · 6"}}
+  - {id: F-45, slides: ["07"], label: "Plan size", shown: "TOP 1,000 OF 20,000 HCPS", type: direct, source: "demo assets/call_plan.json", key: "calls, n_hcps", formula: "-",
+     check: {expr: "'{:,} of {:,}'.format(J('demo:assets/call_plan.json')['calls'], J('demo:assets/call_plan.json')['n_hcps'])", fmt: "{}", expect: "1,000 of 20,000"}}
+  # ---- slide 08
+  - {id: F-46, slides: ["08"], label: "More converters with 1,000 calls vs the decile list", shown: "+50% · decile list 126 → 189", type: derived, source: "outputs/ablation.csv", key: "captured_5pct: graph features 189, decile list 126", formula: "189 / 126 - 1 = +50.0%",
+     check: {expr: "(abl('+ community and neighbour conversion rates')['captured_5pct'] / abl('decile list (no model)')['captured_5pct'] - 1) * 100", fmt: "{:+.0f}%", expect: "+50%"}}
+  - {id: F-47, slides: ["08"], label: "AUC gain of graph features over profile + decile, with interval", shown: "0.641 → 0.668 · +0.027 [+0.018, +0.037]", type: direct, source: "outputs/deltas.csv", key: "arm='+ community and neighbour conversion rates', vs='profile + decile', metric=auc", formula: "-",
+     check: {expr: "(lambda r: '{:+.3f} [{:+.3f}, {:+.3f}]'.format(r['delta'], r['ci_low'], r['ci_high']))(row('outputs/deltas.csv', arm='+ community and neighbour conversion rates', vs='profile + decile', metric='auc'))", fmt: "{}", expect: "+0.027 [+0.018, +0.037]"}}
+  - {id: F-48, slides: ["08"], label: "Shuffled-control AUC below profile-only", shown: "0.633 · below profile-only 0.641", type: direct, source: "outputs/ablation.csv", key: "both control rows auc; profile + decile auc", formula: "-",
+     check: {expr: "'{:.3f} · {:.3f} · {:.3f}'.format(abl('control, HCPs shuffled across the graph: + community and neighbour conversion rates')['auc'], abl('control, HCPs shuffled across the graph: graph features + node2vec + GraphSAGE')['auc'], abl('profile + decile (XGBoost)')['auc'])", fmt: "{}", expect: "0.633 · 0.633 · 0.641"}}
+  - {id: F-49, slides: ["08"], label: "Share of the decile-to-ceiling gap closed by the best arm", shown: "44% · 126 → 212 of 322", type: derived, source: "outputs/ablation.csv", key: "captured_5pct: decile 126, best (n2v + SAGE) 212, ceiling 322", formula: "(212 - 126) / (322 - 126) = 43.9%",
+     check: {expr: "(abl('graph features + node2vec + GraphSAGE')['captured_5pct'] - abl('decile list (no model)')['captured_5pct']) / (abl('ceiling: true propensity (answer key)')['captured_5pct'] - abl('decile list (no model)')['captured_5pct']) * 100", fmt: "{:.0f}%", expect: "44%"}}
+  - {id: F-50, slides: ["08"], label: "Graph features beat profile-only on all 3 seeds", shown: "+0.025 to +0.039 AUC", type: derived, source: "outputs/seed_sweep.csv", key: "auc: 'graph features' minus 'profile' per seed (7, 11, 23)", formula: "min/max of 0.0269, 0.0247, 0.0388",
+     check: {expr: "(lambda g: '{:+.3f} to {:+.3f}'.format(g.min(), g.max()) if (g > 0).all() and len(g) == 3 else 'fail')(R('outputs/seed_sweep.csv').pivot(index='seed', columns='arm', values='auc').eval('`graph features` - profile'))", fmt: "{}", expect: "+0.025 to +0.039"}}
+  # ---- slide 09
+  - {id: F-51, slides: ["09"], label: "Reference: graph features vs profile + decile (AUC delta)", shown: "+0.027", type: direct, source: "outputs/deltas.csv", key: "arm='+ community and neighbour conversion rates', vs='profile + decile', auc", formula: "-", check: {expr: "dl('+ community and neighbour conversion rates', 'profile + decile')", fmt: "{}", expect: "+0.027 [+0.018, +0.037]"}}
+  - {id: F-52, slides: ["09"], label: "+ node2vec vs graph features", shown: "+0.008", type: direct, source: "outputs/deltas.csv", key: "arm='graph features + node2vec', vs='graph features', auc", formula: "-", check: {expr: "dl('graph features + node2vec', 'graph features')", fmt: "{}", expect: "+0.008 [-0.000, +0.014]"}}
+  - {id: F-53, slides: ["09"], label: "+ GraphSAGE vs graph features", shown: "-0.002", type: direct, source: "outputs/deltas.csv", key: "arm='graph features + GraphSAGE', vs='graph features', auc", formula: "-", check: {expr: "dl('graph features + GraphSAGE', 'graph features')", fmt: "{}", expect: "-0.002 [-0.008, +0.003]"},
+     note: "delta = -0.00249; the README rounds it to -0.003, the video shows -0.002 (3-decimal rounding of the CSV value)."}
+  - {id: F-54, slides: ["09"], label: "+ both embeddings vs graph features", shown: "+0.005", type: direct, source: "outputs/deltas.csv", key: "arm='graph features + node2vec + GraphSAGE', vs='graph features', auc", formula: "-", check: {expr: "dl('graph features + node2vec + GraphSAGE', 'graph features')", fmt: "{}", expect: "+0.005 [-0.002, +0.012]"},
+     note: "delta = 0.00549; the README writes +0.006."}
+  - {id: F-55, slides: ["09"], label: "Embeddings instead of hand-built graph features", shown: "-0.010", type: direct, source: "outputs/deltas.csv", key: "arm='profile + embeddings only (no hand-built graph features)', vs='graph features', auc", formula: "-", check: {expr: "dl('profile + embeddings only (no hand-built graph features)', 'graph features')", fmt: "{}", expect: "-0.010 [-0.020, -0.001]"}}
+  - {id: F-56, slides: ["09"], label: "Embedding share of split gain in the full model", shown: "61% · node2vec 40% · SAGE 21%", type: derived, source: "outputs/summary.json", key: "gain_share_by_block_full_model: node2vec 0.3975, graphsage 0.2091", formula: "0.3975 + 0.2091 = 0.6067",
+     check: {expr: "(lambda g: '{:.0f}% · {:.0f}% · {:.0f}%'.format(100 * (g['node2vec'] + g['graphsage']), 100 * g['node2vec'], 100 * g['graphsage']))(J('outputs/summary.json')['gain_share_by_block_full_model'])", fmt: "{}", expect: "61% · 40% · 21%"}}
+  # ---- slide 10
+  - {id: F-57, slides: ["10"], label: "Licence", shown: "MIT", type: direct, source: "LICENSE line 1", key: "-", formula: "-",
+     check: {expr: "T('LICENSE').startswith('MIT License')", fmt: bool}}
+  - {id: F-58, slides: ["10"], label: "Stack chips are real dependencies", shown: "XGBoost · NetworkX · PyTorch Geometric · Python", type: direct, source: "pyproject.toml dependencies", key: "xgboost, networkx, torch-geometric", formula: "-",
+     check: {expr: "all(grep('pyproject.toml', p) for p in [r'\"xgboost', r'\"networkx', r'\"torch-geometric', r'requires-python'])", fmt: bool}}
+  - {id: F-59, slides: ["10"], label: "Run command and what it runs", shown: "$ make run   # 20,000 HCPs, 9 arms, 5 folds", type: direct, source: "Makefile; cli.py defaults", key: "run target; --n-hcps 20000; 7 arms + 2 controls; --folds 5", formula: "-",
+     check: {expr: "grep('Makefile', r'^run:') and grep('src/hcp_targeting/cli.py', r'--n-hcps\", type=int, default=20_000')", fmt: bool}}
+
+slides:
+  - id: "01"
+    title: "The industry"
+    image: slides/slide-01.jpg
+    time: "0.0-7.2 s"
+    composition: "compositions/s01-context.html"
+    text:
+      - "01 · THE INDUSTRY"
+      - "Every launch, a sales team has to choose which doctors to call."
+      - "WHO LIVES WITH THIS · Pharma launch teams · Field sales & commercial ops · Specialty & device makers"
+      - "01 A few calls per rep, thousands of doctors — Every call spent is one not spent elsewhere"
+      - "02 Call lists ranked by prescription volume — Deciles show who writes most, not who will switch"
+      - "03 The heaviest writers are often the most loyal — Calls go to confirming the incumbent's fans"
+      - "04 Doctors adopt when their peers adopt — Shared patients and referrals never reach the list"
+      - "THIS PROJECT tests what the referral network adds · network → features → score → call list"
+    assumptions: [A-12]
+    illustrative: ["The whole slide is context; no repo figures."]
+    change: "Edit the chips (#ctx-c1..3) and cards (#ctx-k1..4) in compositions/s01-context.html."
+  - id: "02"
+    title: "This project"
+    image: slides/slide-02.jpg
+    time: "6.8-11.6 s"
+    composition: "compositions/s02-hook.html"
+    text:
+      - "02 · THIS PROJECT"
+      - "20,000 doctors. 75,155 ties between them. Calls for just 1 in 20."
+      - "8 specialties · 12 regions · 24 months of class prescriptions · only 8.1% convert to the new drug"
+    assumptions: [A-01, A-03]
+    illustrative: ["Rings in the background are decoration."]
+    change: "Headline spans #hook-l1..l3 and chips #hook-f1..f3 in compositions/s02-hook.html."
+  - id: "03"
+    title: "How it works (white chapter, slide A)"
+    image: slides/slide-03.jpg
+    time: "11.3-19.3 s"
+    composition: "compositions/explainer.html (CONFIG.blocks, CONFIG.groups, CONFIG.loop)"
+    text:
+      - "03 · HOW IT WORKS"
+      - "From claims to a call list"
+      - "CLAIMS DATA doctors, Rx, shared patients → [THE GRAPH: THE NETWORK who shares patients → PRACTICES groups of about 50] → [EVERY FOLD, 5 TIMES: NO PEEKING own outcome kept out → SCORE who is likely to switch?] → CALL LIST ✓ more converters ✓ shuffle-tested ✓ leak-tested"
+      - "train, score, repeat (loop over the scoring step)"
+    assumptions: [A-04, A-05, A-08]
+    illustrative: ["Icons and colours are a visual language, not data.", "'Claims data' describes where shared-patient ties come from in practice; the repo's data is generated (A-01)."]
+    change: "Edit CONFIG in compositions/explainer.html; badge truth is F-11."
+  - id: "04"
+    title: "The key idea (white chapter, slide B)"
+    image: slides/slide-04.jpg
+    time: "19.3-26.3 s"
+    composition: "compositions/explainer.html (#ex-b ...)"
+    text:
+      - "04 · THE KEY IDEA"
+      - "Learn from peers, without peeking"
+      - "A doctor's peers predict them — how their practice and contacts converted"
+      - "A careless average leaks the answer — it quietly counts the doctor's own outcome"
+      - "So the rates are rebuilt for every fold — from other doctors' outcomes only"
+      - "ONE PRACTICE · SHARED PATIENTS: YOU + 5 peers, OWN OUTCOME HIDDEN, PRACTICE RATE 2 / 5 peers who switched. The score sees only the others: 2 of 5 switched."
+      - "First version leaked: held-out AUC fell to 0.589. Fold-built rates reach 0.668, and a test pins it."
+    assumptions: [A-04, A-07]
+    illustrative: ["The YOU + 5 peers demo is schematic (F-15); it mirrors label_graph_features, not real HCPs."]
+    change: "Markup under #ex-b and the practice demo block in compositions/explainer.html; the footnote figures are F-12, F-13, F-14."
+  - id: "05"
+    title: "Architecture"
+    image: slides/slide-05a.jpg
+    image2: slides/slide-05b.jpg
+    time: "26.0-42.0 s"
+    composition: "compositions/s03-architecture.html"
+    text:
+      - "05 · ARCHITECTURE"
+      - "One batch run: a graph, nine model arms, one scorecard."
+      - "batch · one command (hcp-targeting) · CPU only, no GPU or API key"
+      - "Legend: data · models · decision · evaluation · leak guard; once per run · every fold · baseline / ceiling"
+      - "data.py → data/: Seeded generator (generate() · seed 7) writes hcps.csv (20,000 HCPs), monthly_class_rx (24 months · .csv), edges.csv (75,155 ties); answer key .npy (ceiling row only)"
+      - "features.py: profile_features() Profile + decile (decile · Rx trend · specialty); louvain_communities() Graph + Louvain (35 regions · 408 communities); structural_features() Centrality (PageRank · betweenness k=256); label_graph_features() Conversion rates (practice + peers · no own label)"
+      - "embeddings.py · label-free: node2vec (32-d walks), GraphSAGE (2 × SAGEConv)"
+      - "evaluate.py · cli.py: make_folds() Stratified 5-fold (same folds, every arm) → run_arm() XGBoost (400 trees · depth 4 · 7 arms + 2 controls · fold n / 5) → Out-of-fold scores (p(convert) × 20,000); 45 fits; feedback loop 'train labels only' back to Conversion rates"
+      - "decision: fallback Decile list (today's rule) → captured_at_budget() ◆ Call budget (top-k by score · k = 1,000 · 4,000)"
+      - "serving · people: Call plan (1,000 HCPs ranked) → Field reps (fixed calls per cycle); notes: full run ≈ 403 s · 10-core laptop"
+      - "evaluation → outputs/: summarise() Scorecard (AUC · lift · captured), bootstrap_delta() Paired bootstrap (200 resamples · 95% CI), cli.py Shuffled control (same graph, HCPs moved) → outputs/ (ablation · deltas · summary)"
+      - "Edge labels: writes · train labels only · fallback: decile, then annual Rx (today's list) · p(convert) · top-k · OOF scores"
+      - "Critical path: ties → communities → fold-built rates → XGBoost → top-k → call plan"
+    assumptions: [A-01, A-03, A-04, A-05, A-06, A-07, A-08, A-09]
+    illustrative: ["Packets moving along the edges follow execution order but their speed is decorative; the fold counter shows the 5 folds, not wall-clock time.", "'Field reps · fixed calls per cycle' is the human-in-the-loop consumer from the README problem statement; the repo has no rep or scheduling code.", "'Call plan' is the top-k of the out-of-fold scores (what captured_at_budget counts); the repo does not write a plan file — the demo's export script does (slide 07)."]
+    change: "FRAMES, N (components) and W (edges) objects in compositions/s03-architecture.html."
+  - id: "06"
+    title: "The system running"
+    image: slides/slide-06a.jpg
+    image2: slides/slide-06b.jpg
+    time: "41.6-56.2 s"
+    composition: "compositions/s04-routes.html (NET block injected by tools/inject_sheet.py; LADDER array)"
+    text:
+      - "06 · THE SYSTEM RUNNING"
+      - "Converters cluster inside practices."
+      - "Network panel: 590 of 1,834 HCPs in one regional block · 1,304 ties"
+      - "CONVERTED, BY COMMUNITY: 9 of 59 15.3% · 7 of 68 10.3% · 6 of 60 10.0% · 4 of 64 6.2% · 4 of 87 4.6% · 4 of 97 4.1% · 2 of 78 2.6% · 2 of 79 2.5% · all 20,000 HCPs: 8.1%"
+      - "● converted · ● not yet · communities found from ties alone (Louvain)"
+      - "CONVERTERS REACHED WITH 1,000 CALLS (5% OF 20,000) · AUC: Decile list today 126 0.623 · Profile + decile XGBoost 166 0.641 · + centrality 188 0.658 · + conversion rates (graph features) 189 0.668 · + node2vec 202 0.676 · + node2vec + GraphSAGE 212 0.674 · Shuffled control (graph features) 146 0.633 · Ceiling (true propensity) 322 0.761"
+      - "5-fold out-of-fold scores · seed 7 · outputs/ablation.csv"
+    assumptions: [A-02, A-03, A-05, A-07, A-08, A-09]
+    illustrative: ["The network layout is a seeded spring layout (networkx, seed 7) of the real sampled subgraph; position has no meaning beyond tie structure.", "Community colours are arbitrary.", "Bar lengths: 860 px track = 340 converters."]
+    change: "Re-run tools/export_call_plan.py + tools/inject_sheet.py for the network panel; LADDER array in compositions/s04-routes.html for the ladder."
+  - id: "07"
+    title: "End-user value (white)"
+    image: slides/slide-07.jpg
+    time: "55.9-68.9 s"
+    composition: "compositions/value.html (SHEET block injected by tools/inject_sheet.py)"
+    text:
+      - "07 · END-USER VALUE"
+      - "What the launch team gets"
+      - "CALL PLAN · NEXT CYCLE · TOP 1,000 OF 20,000 HCPS — columns RANK, HCP, SPECIALTY, REG, DECILE, DECILE LIST #, SCORE, PRACTICE RATE, PEERS ✓"
+      - "#1 HCP 16728 Nephrology R01 5 #4,342 0.51 13% 6"
+      - "#2 HCP 10679 Primary care R04 2 #10,743 0.49 19% 3"
+      - "#3 HCP 01749 Internal med. R10 5 #4,356 0.49 17% 2"
+      - "#4 HCP 19221 Nephrology R06 7 #2,225 0.48 15% 3"
+      - "#5 HCP 18923 Cardiology R04 5 #4,608 0.48 23% 3"
+      - "#6 HCP 04338 Primary care R04 8 #1,610 0.48 20% 4"
+      - "+ 994 more on this plan · 848 of the 1,000 are not in the decile list's top 1,000"
+      - "✓ 1,000 calls · 189 converters reached · decile list: 126"
+      - "FIELD REP · THIS CYCLE: 29 of 100 HCPs here are planned · called: 29 · switched: 6"
+      - "ONE PRACTICE COMMUNITY · SHARED PATIENTS"
+      - "Calls go where peers are already switching: 189 converters from 1,000 calls, against 126 from the decile list."
+    assumptions: [A-02, A-03, A-04, A-10]
+    illustrative: ["HCP numbers are the generator's synthetic hcp_id values (no real people).", "'NEXT CYCLE' frames the out-of-fold ranking as a plan; in the repo the scores and outcomes come from the same campaign window (README 'Known limitations': static snapshot).", "The rep figure, call cards and their timing are illustrative; the community (level-1 community 8), its ties, which members are on the plan and which converted are real, laid out with a seeded spring layout.", "Practice rate is the smoothed fold-built community conversion rate (prior weight 20), so it is not a raw share."]
+    change: "Re-run tools/export_call_plan.py, then tools/inject_sheet.py (--rows picks the plan ranks); layout in compositions/value.html."
+  - id: "08"
+    title: "Results"
+    image: slides/slide-08.jpg
+    time: "68.6-77.4 s"
+    composition: "compositions/s05-results.html (stats array)"
+    text:
+      - "08 · RESULTS · 20,000 HCPS, OUT-OF-FOLD"
+      - "More converters per call, and the network is why."
+      - "CALL PLAN +50% converters reached with 1,000 calls · decile list 126 → 189"
+      - "MODEL 0.668 AUC with graph features · +0.027 [+0.018, +0.037]"
+      - "SHUFFLED CONTROL 0.633 AUC once HCPs are moved on the graph · below profile-only 0.641"
+      - "HEADROOM 44% of the gap to the ceiling closed · 126 → 212 of 322"
+      - "graph features beat profile-only on all 3 seeds: +0.025 to +0.039 AUC · paired bootstrap, 200 resamples"
+    assumptions: [A-02, A-03, A-07, A-08, A-09, A-11]
+    illustrative: ["Mini bars: card 1 and 4 are drawn to the ratio shown; cards 2-3 are AUC / 0.761 (ceiling)."]
+    change: "The stats array and card text in compositions/s05-results.html."
+  - id: "09"
+    title: "What didn't win"
+    image: slides/slide-09.jpg
+    time: "77.0-84.0 s"
+    composition: "compositions/s06-twist.html (ROWS array)"
+    text:
+      - "09 · WHAT DIDN'T WIN"
+      - "Embeddings take 61% of split gain and add almost nothing."
+      - "AUC added, with paired bootstrap 95% intervals (outputs/deltas.csv)"
+      - "Graph features vs profile + decile +0.027 · + node2vec vs graph features +0.008 · + GraphSAGE vs graph features -0.002 · + both vs graph features +0.005 · Embeddings instead vs graph features -0.010"
+      - "share of split gain in the full model: node2vec 40% · SAGE 21% · 61%"
+      - "Why: the embeddings re-encode community membership the hand-built features already carry. Split gain counts splits, not value added."
+    assumptions: [A-02, A-07, A-11]
+    illustrative: ["Axis -0.02 … +0.04 AUC; dots are point estimates, lines are the 95% intervals."]
+    change: "ROWS array (deltas) and the gain bar in compositions/s06-twist.html."
+  - id: "10"
+    title: "End card"
+    image: slides/slide-10.jpg
+    time: "83.6-88.0 s"
+    composition: "compositions/s07-end.html"
+    text:
+      - "10 · OPEN SOURCE · MIT · RUNS ON A LAPTOP CPU"
+      - "hcp-graph-targeting"
+      - "github.com/kavya2693/hcp-graph-targeting"
+      - "XGBoost · NetworkX · PyTorch Geometric · Python"
+      - "$ make run   # 20,000 HCPs, 9 arms, 5 folds"
+    assumptions: [A-11]
+    illustrative: ["Faded network in the background is the slide 06 sample."]
+    change: "Text in compositions/s07-end.html."
+
+caveats:
+  - "All results come from one generated market (seed 7, plus two sweep seeds). The generator wires practice culture and opinion-leader exposure into conversion, so the size of the graph lift is set by the generator, not measured on a real market (README 'Known limitations', A-02)."
+  - "'Converters reached' ranks propensity, not uplift from calling: there is no call response model (A-03)."
+  - "Slide 07 presents out-of-fold scores as a 'next cycle' plan. In the repo the snapshot is static: the same campaign window provides labels for the fold-built features and the outcomes being scored (README 'Known limitations')."
+  - "The slide 07 plan comes from the demo's export script, which re-runs one arm of make run (same data, seed, folds and settings) and asserts AUC 0.668 and 189 / 126 captured against outputs/ablation.csv. The repo itself does not write a plan file."
+  - "'Full run ≈ 403 s' quotes the README for an earlier session; the captured run in outputs/ took 12,279 s on a shared machine."
+  - "Slide 09 shows the GraphSAGE delta as -0.002 and the both-embeddings delta as +0.005 (3-decimal rounding of outputs/deltas.csv); the README text writes -0.003 and +0.006."
+  - "The 44% headroom figure uses the best arm (node2vec + GraphSAGE, 212); the +50% figure uses the hand-built graph-features arm (189)."
+  - "Slide 01 statements are general industry knowledge (A-12)."
+
+stills:
+  master: renders/hcp-graph-targeting-master.mp4   # relative to demo_dir
+  width: 1600
+  times: {"01": 6.4, "02": 11.1, "03": 18.9, "04": 25.6, "05a": 37.6, "05b": 40.8, "06a": 48.8, "06b": 55.5, "07": 67.8, "08": 76.8, "09": 83.4, "10": 87.8}
+
+# Extra check helpers (Python), available to check expressions.
+helpers: |
+  import re as _re
+  def abl(arm):
+      return row('outputs/ablation.csv', arm=arm)
+  def lad(arm):
+      r = abl(arm)
+      return '{} · {:.3f}'.format(int(r['captured_5pct']), r['auc'])
+  def dl(arm, vs):
+      r = row('outputs/deltas.csv', arm=arm, vs=vs, metric='auc')
+      f = lambda v: ('+' if v >= 0 else '-') + '{:.3f}'.format(abs(v))
+      return '{} [{}, {}]'.format(f(r['delta']), f(r['ci_low']), f(r['ci_high']))
+  def sample_labels_match():
+      """Every sampled node's converted flag and every community count equal data/hcps.csv."""
+      y = R('data/hcps.csv').set_index('hcp_id')['converted']
+      s = J('demo:assets/call_plan.json')['network_sample']
+      if any(int(y[n[0]]) != n[2] for n in s['nodes']):
+          return False
+      for ci, c in enumerate(s['communities']):
+          members = [n[0] for n in s['nodes'] if n[1] == ci]
+          # a level-1 community can reach outside the regional block, so the panel may show fewer members
+          if len(members) > c['size'] or int(y[members].sum()) > c['converted']:
+              return False
+      sc = J('demo:assets/call_plan.json')['scene']
+      return all(int(y[n[0]]) == n[2] for n in sc['nodes'])
+  def sheet_rows_match():
+      """The SHEET block injected in value.html must equal the exported plan, and the plan its own labels."""
+      html = T('demo:compositions/value.html')
+      m = _re.search(r"const SHEET = (\{.*?\}); /\* SHEET:END", html, _re.S)
+      sheet = json.loads(m.group(1))
+      plan = {p['rank']: p for p in J('demo:assets/call_plan.json')['plan']}
+      h = R('data/hcps.csv').set_index('hcp_id')
+      for r in sheet['rows']:
+          p = plan[r['rank']]
+          if any(r[k] != p[k] for k in r):
+              return False
+          if h.at[r['hcp'], 'specialty'] != r['specialty'] or h.at[r['hcp'], 'region'] != r['region'] or int(h.at[r['hcp'], 'decile']) != r['decile']:
+              return False
+      return [r['rank'] for r in sheet['rows']] == [1, 2, 3, 4, 5, 6]

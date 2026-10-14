@@ -1,0 +1,328 @@
+<!doctype html>
+<html>
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <template>
+      <style>
+        #arch-root { position: absolute; inset: 0; }
+        #arch-root .diagram { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 960px 620px; }
+        #arch-root svg.layer { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+        #arch-root .wire { fill: none; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+        #arch-root .frame {
+          position: absolute; border: 2px dashed rgba(178, 191, 204, 0.22); border-radius: 18px; background: rgba(15, 26, 38, 0.35);
+        }
+        #arch-root .frame .ft {
+          position: absolute; left: 16px; top: -15px; padding: 0 10px; background: var(--bg); font-family: var(--mono);
+          font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap;
+        }
+        #arch-root .node {
+          position: absolute; display: flex; flex-direction: column; justify-content: center; gap: 4px;
+          padding: 0 16px; border: 2px solid var(--line); border-radius: 12px; background: var(--panel);
+        }
+        #arch-root .node .t { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; }
+        #arch-root .node .s { font-family: var(--mono); font-size: 20px; color: var(--ink-soft); white-space: nowrap; }
+        #arch-root .node .f {
+          position: absolute; right: 10px; top: -14px; font-family: var(--mono); font-size: 20px; line-height: 24px; padding: 0 8px;
+          border-radius: 6px; background: var(--bg); border: 2px solid var(--line); white-space: nowrap;
+        }
+        #arch-root .node.tagged { padding-top: 12px; }
+        #arch-root .node .f.lf { left: 10px; right: auto; }
+        #arch-root .L-data { border-color: rgba(127, 168, 255, 0.6); }
+        #arch-root .L-data .f { color: var(--c-data); border-color: rgba(127, 168, 255, 0.45); }
+        #arch-root .L-model { border-color: rgba(185, 162, 255, 0.65); }
+        #arch-root .L-model .f { color: var(--c-model); border-color: rgba(185, 162, 255, 0.45); }
+        #arch-root .L-opt { border-color: rgba(63, 216, 168, 0.65); }
+        #arch-root .L-opt .f { color: var(--c-opt); border-color: rgba(63, 216, 168, 0.45); }
+        #arch-root .L-eval { border-color: rgba(242, 196, 109, 0.65); }
+        #arch-root .L-eval .f { color: var(--c-eval); border-color: rgba(242, 196, 109, 0.45); }
+        #arch-root .L-risk { border-color: rgba(255, 138, 115, 0.8); background: #1d1a1f; }
+        #arch-root .L-risk .f { color: var(--c-risk); border-color: rgba(255, 138, 115, 0.5); }
+        #arch-root .L-base { border: 2px dashed rgba(178, 191, 204, 0.55); background: rgba(15, 26, 38, 0.6); }
+        #arch-root .L-base .f { color: var(--ink-soft); }
+        #arch-root .plain { border: none; background: none; padding: 0; align-items: center; text-align: center; }
+        #arch-root .hero { border: 3px solid var(--c-model); background: #1a1630; }
+        #arch-root .hero .t { font-size: 30px; }
+        #arch-root .dec { border: 3px solid var(--c-opt); background: #0f2629; }
+        #arch-root .folds { display: flex; gap: 8px; margin-top: 4px; }
+        #arch-root .folds i { display: block; width: 46px; height: 14px; border-radius: 4px; background: rgba(185, 162, 255, 0.18); }
+        #arch-root .fold-row { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--mono); font-size: 20px; color: var(--ink-soft); }
+        #arch-root .fold-row b { color: var(--c-model); }
+        #arch-root .lbl { position: absolute; font-family: var(--mono); font-size: 20px; white-space: nowrap; }
+        #arch-root .note {
+          position: absolute; font-family: var(--mono); font-size: 20px; color: var(--c-eval); white-space: nowrap;
+          padding: 2px 10px; border-radius: 6px; background: rgba(242, 196, 109, 0.08); border: 1px solid rgba(242, 196, 109, 0.35);
+        }
+        #arch-root .batch { position: absolute; left: 120px; top: 196px; font-family: var(--mono); font-size: 20px; color: var(--ink-mute); white-space: nowrap; }
+        #arch-root .legend { position: absolute; right: 40px; top: 184px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+        #arch-root .legend .lr { display: flex; gap: 22px; font-family: var(--mono); font-size: 20px; color: var(--ink-soft); }
+        #arch-root .legend span { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        #arch-root .legend i { display: block; width: 14px; height: 14px; border-radius: 4px; }
+        #arch-root .legend svg { width: 40px; height: 10px; }
+        #arch-root .crit {
+          position: absolute; left: 1290px; top: 790px; width: 600px; padding: 8px 16px; border-radius: 10px;
+          border: 2px solid var(--c-opt); background: #0d2a2a; font-family: var(--mono); font-size: 20px;
+          line-height: 1.35; color: var(--ink);
+        }
+        #arch-root .crit b { color: var(--c-opt); }
+      </style>
+
+      <div id="arch-root" data-composition-id="arch" data-width="1920" data-height="1080">
+        <div class="scene" id="arch-in">
+          <div class="eyebrow" data-layout-allow-overlap id="arch-eyebrow">05 · Architecture</div>
+          <div class="scene-title" data-layout-allow-overlap id="arch-title">One batch run: a graph, nine model arms, one scorecard.</div>
+          <div class="batch" id="arch-batch">batch · one command (hcp-targeting) · CPU only, no GPU or API key</div>
+          <div class="legend" id="arch-legend">
+            <div class="lr">
+              <span><i style="background: var(--c-data)"></i>data</span>
+              <span><i style="background: var(--c-model)"></i>models</span>
+              <span><i style="background: var(--c-opt)"></i>decision</span>
+              <span><i style="background: var(--c-eval)"></i>evaluation</span>
+              <span><i style="background: var(--c-risk)"></i>leak guard</span>
+            </div>
+            <div class="lr">
+              <span><svg viewBox="0 0 40 10"><path d="M2 5H38" stroke="#b2bfcc" stroke-width="3" /></svg>once per run</span>
+              <span><svg viewBox="0 0 40 10"><path d="M2 5H38" stroke="#ff8a73" stroke-width="3" stroke-dasharray="7 5" /></svg>every fold</span>
+              <span><svg viewBox="0 0 40 10"><path d="M2 5H38" stroke="#b2bfcc" stroke-width="3" stroke-dasharray="2 5" /></svg>baseline / ceiling</span>
+            </div>
+          </div>
+          <div class="diagram" id="arch-diagram">
+            <div id="arch-frames"></div>
+            <svg class="layer" id="arch-under" viewBox="0 0 1920 1080"></svg>
+            <div id="arch-nodes"></div>
+            <div id="arch-labels"></div>
+            <svg class="layer" id="arch-over" viewBox="0 0 1920 1080"></svg>
+            <div class="crit" id="arch-crit"><b>Critical path:</b> ties → communities → fold-built rates → XGBoost → top-k → call plan</div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (() => {
+          const tl = gsap.timeline({ paused: true });
+          const D = 16.0;
+          const NS = "http://www.w3.org/2000/svg";
+          const COL = { data: "#7fa8ff", model: "#b9a2ff", opt: "#3fd8a8", eval: "#f2c46d", risk: "#ff8a73", base: "#b2bfcc" };
+          const under = document.getElementById("arch-under"), over = document.getElementById("arch-over");
+          const el = (tag, at, parent) => {
+            const n = document.createElementNS(NS, tag);
+            Object.entries(at).forEach(([k, v]) => n.setAttribute(k, v));
+            parent.appendChild(n);
+            return n;
+          };
+
+          /* ---------------- layer frames (each names the repo file that owns the layer) ---------------- */
+          const FRAMES = [
+            { id: "F1", x: 80, y: 280, w: 310, h: 500, t: "data.py → data/", c: "data", at: 0.8 },
+            { id: "F2", x: 420, y: 280, w: 444, h: 410, t: "features.py", c: "data", at: 1.7 },
+            { id: "F3", x: 420, y: 716, w: 444, h: 104, t: "embeddings.py · label-free", c: "model", at: 2.7 },
+            { id: "F4", x: 900, y: 280, w: 350, h: 540, t: "evaluate.py · cli.py", c: "model", at: 3.3 },
+            { id: "F5", x: 1285, y: 280, w: 290, h: 340, t: "decision", c: "opt", at: 4.4 },
+            { id: "F6", x: 1610, y: 280, w: 280, h: 500, t: "serving · people", c: "opt", at: 5.1 },
+            { id: "F7", x: 420, y: 856, w: 1470, h: 140, t: "evaluation → outputs/", c: "eval", at: 5.8 },
+          ];
+          document.getElementById("arch-frames").innerHTML = FRAMES.map((f) =>
+            '<div class="frame" id="arch-' + f.id + '" style="left:' + f.x + "px;top:" + f.y + "px;width:" + f.w + "px;height:" + f.h + 'px">' +
+            '<div class="ft" style="color:' + COL[f.c] + '">' + f.t + "</div></div>").join("");
+
+          /* ---------------- components (every box names a real function or file in the repo) ---------------- */
+          // kind: box | hero | dec (decision point) | cyl (data store) | doc (artifact) | person (human in the loop)
+          const N = {
+            gen: { k: "box", x: 100, y: 304, w: 270, h: 76, L: "data", t: "Seeded generator", s: ["generate() · seed 7"], at: 0.9 },
+            hcps: { k: "cyl", x: 100, y: 410, w: 270, h: 104, L: "data", t: "hcps.csv", s: ["20,000 HCPs"], at: 1.05 },
+            rx: { k: "cyl", x: 100, y: 532, w: 270, h: 104, L: "data", t: "monthly_class_rx", s: ["24 months · .csv"], at: 1.15 },
+            edges: { k: "cyl", x: 100, y: 654, w: 270, h: 104, L: "data", t: "edges.csv", s: ["75,155 ties"], at: 1.25 },
+            key: { k: "cyl", x: 100, y: 872, w: 270, h: 104, L: "base", t: "answer key .npy", s: ["ceiling row only"], at: 5.9 },
+
+            prof: { k: "box", x: 440, y: 306, w: 404, h: 78, L: "data", f: "profile_features()", t: "Profile + decile", s: ["decile · Rx trend · specialty"], at: 1.8 },
+            graph: { k: "box", x: 440, y: 400, w: 404, h: 78, L: "data", f: "louvain_communities()", t: "Graph + Louvain", s: ["35 regions · 408 communities"], at: 1.95 },
+            cent: { k: "box", x: 440, y: 494, w: 404, h: 78, L: "data", f: "structural_features()", t: "Centrality", s: ["PageRank · betweenness k=256"], at: 2.1 },
+            rates: { k: "box", x: 440, y: 588, w: 404, h: 76, L: "risk", f: "label_graph_features()", t: "Conversion rates", s: ["practice + peers · no own label"], at: 2.25 },
+            n2v: { k: "box", x: 440, y: 740, w: 200, h: 66, L: "model", t: "node2vec", s: ["32-d walks"], at: 2.8 },
+            sage: { k: "box", x: 656, y: 740, w: 188, h: 66, L: "model", t: "GraphSAGE", s: ["2 × SAGEConv"], at: 2.9 },
+
+            folds: { k: "box", x: 920, y: 306, w: 310, h: 76, L: "model", f: "make_folds()", t: "Stratified 5-fold", s: ["same folds, every arm"], at: 3.4 },
+            xgb: { k: "hero", x: 920, y: 420, w: 310, h: 222, L: "model", f: "run_arm()", t: "XGBoost", s: ["400 trees · depth 4", "7 arms + 2 controls"], at: 3.6 },
+            oof: { k: "box", x: 920, y: 706, w: 310, h: 78, L: "model", t: "Out-of-fold scores", s: ["p(convert) × 20,000"], at: 4.1 },
+
+            rule: { k: "box", x: 1300, y: 306, w: 260, h: 86, L: "base", f: "fallback", t: "Decile list", s: ["today's rule"], at: 4.5 },
+            budget: { k: "dec", x: 1300, y: 444, w: 260, h: 150, L: "opt", f: "captured_at_budget()", t: "◆ Call budget", s: ["top-k by score", "k = 1,000 · 4,000"], at: 4.6 },
+
+            plan: { k: "doc", x: 1630, y: 444, w: 240, h: 150, L: "opt", t: "Call plan", s: ["1,000 HCPs", "ranked"], at: 5.2 },
+            reps: { k: "person", x: 1630, y: 640, w: 240, h: 120, L: "base", t: "Field reps", s: ["fixed calls", "per cycle"], at: 5.4 },
+
+            score: { k: "box", x: 440, y: 884, w: 340, h: 92, L: "eval", f: "summarise()", t: "Scorecard", s: ["AUC · lift · captured"], at: 5.95 },
+            boot: { k: "box", x: 800, y: 884, w: 340, h: 92, L: "eval", f: "bootstrap_delta()", t: "Paired bootstrap", s: ["200 resamples · 95% CI"], at: 6.05 },
+            ctrl: { k: "box", x: 1160, y: 884, w: 340, h: 92, L: "eval", f: "cli.py", t: "Shuffled control", s: ["same graph, HCPs moved"], at: 6.15 },
+            outs: { k: "cyl", x: 1530, y: 872, w: 340, h: 112, L: "eval", t: "outputs/", s: ["ablation · deltas · summary"], at: 6.25 },
+          };
+
+          const nodesHTML = [];
+          Object.entries(N).forEach(([id, n]) => {
+            const shaped = n.k === "cyl" || n.k === "doc" || n.k === "person";
+            const cls = "node L-" + n.L + (n.f ? " tagged" : "") + (n.k === "hero" ? " hero" : "") + (n.k === "dec" ? " dec" : "") + (shaped ? " plain" : "");
+            let inner = (n.f ? '<div class="f' + (id === "rule" ? " lf" : "") + '">' + n.f + "</div>" : "") + '<div class="t">' + n.t + "</div>" + n.s.map((s) => '<div class="s">' + s + "</div>").join("");
+            if (id === "xgb") inner += '<div class="fold-row"><span>fold</span><b id="arch-fold-n">0 / 5</b></div><div class="folds">' + [1, 2, 3, 4, 5].map((k) => '<i id="arch-fold' + k + '"></i>').join("") + "</div>";
+            let style = "left:" + n.x + "px;top:" + n.y + "px;width:" + n.w + "px;height:" + n.h + "px";
+            if (n.k === "cyl") style += ";padding-top:22px";
+            if (n.k === "person") style += ";padding-left:84px;align-items:flex-start;text-align:left";
+            nodesHTML.push('<div class="' + cls + '" id="n-' + id + '" style="' + style + '">' + inner + "</div>");
+          });
+          document.getElementById("arch-nodes").innerHTML = nodesHTML.join("");
+
+          // shapes for stores, artifacts and people, drawn under the text
+          const shapeOf = {};
+          Object.entries(N).forEach(([id, n]) => {
+            if (n.k !== "cyl" && n.k !== "doc" && n.k !== "person") return;
+            const g = el("g", { id: "shape-" + id, opacity: 0 }, under);
+            const c = COL[n.L], dash = n.L === "base" ? { "stroke-dasharray": "6 6" } : {};
+            if (n.k === "cyl") {
+              const rx = n.w / 2, ry = 13, x0 = n.x, x1 = n.x + n.w, yT = n.y + ry, yB = n.y + n.h - ry;
+              el("path", Object.assign({ d: "M" + x0 + " " + yT + " V" + yB + " A" + rx + " " + ry + " 0 0 0 " + x1 + " " + yB + " V" + yT, fill: "#0f1a26", stroke: c, "stroke-width": 2 }, dash), g);
+              el("ellipse", Object.assign({ cx: n.x + rx, cy: yT, rx, ry, fill: "#132131", stroke: c, "stroke-width": 2 }, dash), g);
+            } else if (n.k === "doc") {
+              const f = 28, x0 = n.x, y0 = n.y, x1 = n.x + n.w, y1 = n.y + n.h;
+              el("path", { d: "M" + x0 + " " + y0 + " H" + (x1 - f) + " L" + x1 + " " + (y0 + f) + " V" + y1 + " H" + x0 + " Z", fill: "#0f2629", stroke: c, "stroke-width": 3 }, g);
+              el("path", { d: "M" + (x1 - f) + " " + y0 + " V" + (y0 + f) + " H" + x1, fill: "none", stroke: c, "stroke-width": 2 }, g);
+            } else {
+              el("rect", { x: n.x, y: n.y, width: n.w, height: n.h, rx: 26, fill: "#141c26", stroke: "#b2bfcc", "stroke-width": 2, "stroke-dasharray": "6 6" }, g);
+              const px = n.x + 44, py = n.y + n.h / 2;
+              el("circle", { cx: px, cy: py - 16, r: 12, fill: "#eef2f6" }, g);
+              el("path", { d: "M" + (px - 21) + " " + (py + 26) + " v-10 a21 16 0 0 1 42 0 v10 z", fill: "#eef2f6" }, g);
+            }
+            shapeOf[id] = g;
+          });
+
+          /* ---------------- edges: what flows, in which cadence ---------------- */
+          // style: solid = once per run · dash = rebuilt every fold · dot = baseline / ceiling
+          const R = (id, dy) => [N[id].x + N[id].w, N[id].y + N[id].h / 2 + (dy || 0)];
+          const Lf = (id, dy) => [N[id].x, N[id].y + N[id].h / 2 + (dy || 0)];
+          const T = (id, dx) => [N[id].x + N[id].w / 2 + (dx || 0), N[id].y];
+          const B = (id, dx) => [N[id].x + N[id].w / 2 + (dx || 0), N[id].y + N[id].h];
+          const W = [
+            { id: "gen", pts: [B("gen"), T("hcps")], c: "data", at: 1.3, seq: 0 },
+            { id: "hcps", pts: [R("hcps", 8), [400, R("hcps", 8)[1]], [400, 345], [440, 345]], c: "data", at: 1.9, seq: 1 },
+            { id: "rx", pts: [R("rx"), [400, R("rx")[1]], [400, 345], [440, 345]], c: "data", at: 1.9, seq: 1 },
+            { id: "edges", pts: [R("edges"), [410, R("edges")[1]], [410, 439], [440, 439]], c: "data", at: 2.05, seq: 1, crit: true },
+            { id: "comm", pts: [R("graph", 8), [854, R("graph", 8)[1]], [854, 626], [844, 626]], c: "data", at: 2.4, seq: 2, crit: true },
+            { id: "feat1", pts: [R("prof"), [880, R("prof")[1]], [880, 500], [920, 500]], c: "data", at: 3.8, seq: 3 },
+            { id: "feat2", pts: [R("cent"), [880, R("cent")[1]]], c: "data", at: 3.8, seq: 3 },
+            { id: "feat3", pts: [[844, 612], [880, 612], [880, 500], [920, 500]], c: "risk", at: 3.8, seq: 3, style: "dash", crit: true },
+            { id: "emb", pts: [R("sage"), [890, R("sage")[1]], [890, 600], [920, 600]], c: "model", at: 3.9, seq: 3 },
+            { id: "folds", pts: [B("folds"), T("xgb")], c: "model", at: 3.7, seq: 3 },
+            { id: "loop", pts: [Lf("xgb", 92), [904, Lf("xgb", 92)[1]], [904, 702], [640, 702], [640, 664]], c: "risk", at: 4.0, seq: 4, style: "dash" },
+            { id: "oof", pts: [B("xgb"), T("oof")], c: "model", at: 4.2, seq: 5, crit: true },
+            { id: "ooftop", pts: [R("oof"), [1266, R("oof")[1]], [1266, 519], [1300, 519]], c: "model", at: 4.75, seq: 6, crit: true },
+            { id: "fallback", pts: [[370, 446], [380, 446], [380, 258], [1500, 258], [1500, 306]], c: "base", at: 4.6, seq: 6, style: "dot" },
+            { id: "rulescore", pts: [B("rule"), T("budget")], c: "base", at: 4.75, seq: 6, style: "dot" },
+            { id: "plan", pts: [R("budget"), Lf("plan")], c: "opt", at: 5.3, seq: 7, crit: true },
+            { id: "reps", pts: [B("plan"), T("reps")], c: "opt", at: 5.5, seq: 8, crit: true },
+            { id: "eval", pts: [B("oof"), [1075, 836], [730, 836], [730, 884]], c: "model", at: 6.1, seq: 7 },
+            { id: "eval2", pts: [[1075, 836], [970, 836], [970, 884]], c: "model", at: 6.1, seq: 7 },
+            { id: "eval3", pts: [[1075, 836], [1330, 836], [1330, 884]], c: "model", at: 6.1, seq: 7 },
+            { id: "key", pts: [R("key"), [440, R("key")[1]]], c: "base", at: 6.05, seq: 8, style: "dot" },
+            { id: "outs", pts: [R("ctrl"), Lf("outs", 2)], c: "eval", at: 6.4, seq: 9 },
+          ];
+          const DASH = { dash: "9 7", dot: "2 7" };
+          const lenOf = (pts) => pts.slice(1).reduce((s, p, i) => s + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
+          W.forEach((w) => {
+            const d = "M" + w.pts.map((q) => q.join(" ")).join(" L");
+            const L = lenOf(w.pts);
+            w.len = L;
+            // grown through a mask so dashed styles keep their pattern while they draw
+            const m = el("mask", { id: "arch-m-" + w.id, maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 1920, height: 1080 }, under);
+            const mp = el("path", { d, fill: "none", stroke: "#fff", "stroke-width": 24, "stroke-linejoin": "round", "stroke-dasharray": (L + 30) + " " + (L + 30), "stroke-dashoffset": L + 30 }, m);
+            const g = el("g", { mask: "url(#arch-m-" + w.id + ")", id: "arch-w-" + w.id }, under);
+            const p = el("path", { d, class: "wire", stroke: COL[w.c], opacity: 0.85 }, g);
+            if (w.style) p.setAttribute("stroke-dasharray", DASH[w.style]);
+            const [a, b] = [w.pts[w.pts.length - 2], w.pts[w.pts.length - 1]];
+            const ux = (b[0] - a[0]) / Math.hypot(b[0] - a[0], b[1] - a[1]), uy = (b[1] - a[1]) / Math.hypot(b[0] - a[0], b[1] - a[1]);
+            const p1 = [b[0] - 13 * ux - 6.5 * uy, b[1] - 13 * uy + 6.5 * ux], p2 = [b[0] - 13 * ux + 6.5 * uy, b[1] - 13 * uy - 6.5 * ux];
+            const head = el("path", { d: "M" + b.join(" ") + " L" + p1.join(" ") + " L" + p2.join(" ") + " Z", fill: COL[w.c] }, g);
+            w.g = g;
+            w.path = p;
+            w.head = head;
+            tl.fromTo(mp, { attr: { "stroke-dashoffset": L + 30 } }, { attr: { "stroke-dashoffset": 0 }, duration: Math.max(0.35, L / 1100), ease: "power2.inOut" }, w.at);
+          });
+
+          /* ---------------- edge labels (what flows) and non-functional notes ---------------- */
+          const LBL = [
+            { x: 246, y: 382, t: "writes", c: "data", at: 1.5, id: "l-writes" },
+            { x: 656, y: 669, t: "train labels only", c: "risk", at: 4.4, id: "l-loop" },
+            { x: 520, y: 226, t: "fallback: decile, then annual Rx (today's list)", c: "base", at: 4.8, id: "l-fb" },
+            { x: 1564, y: 484, t: "top-k", c: "opt", at: 5.4, id: "l-top" },
+            { x: 1086, y: 789, t: "OOF scores", c: "model", at: 6.3, id: "l-oofs" },
+            { x: 1276, y: 750, t: "p(convert)", c: "model", at: 4.9, id: "l-p" },
+          ];
+          document.getElementById("arch-labels").innerHTML =
+            LBL.map((l) => '<div class="lbl" id="arch-' + l.id + '" style="left:' + l.x + "px;top:" + l.y + "px;color:" + COL[l.c] + '">' + l.t + "</div>").join("") +
+            '<div class="note" id="arch-note1" style="left:1098px;top:650px">45 fits</div>' +
+            '<div class="note" id="arch-note2" style="left:1630px;top:306px">full run ≈ 403 s</div>' +
+            '<div class="note" id="arch-note3" style="left:1630px;top:352px">10-core laptop</div>';
+
+          /* ---------------- build, layer by layer ---------------- */
+          tl.fromTo("#arch-in", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
+          tl.fromTo("#arch-eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.1);
+          tl.fromTo("#arch-title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.2);
+          tl.fromTo(["#arch-batch", "#arch-legend"], { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.6);
+          tl.fromTo("#arch-diagram", { scale: 0.985 }, { scale: 1, duration: D, ease: "sine.out" }, 0);
+          FRAMES.forEach((f) => tl.fromTo("#arch-" + f.id, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power2.out" }, f.at - 0.1));
+          Object.entries(N).forEach(([id, n]) => {
+            tl.fromTo("#n-" + id, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, n.at);
+            if (shapeOf[id]) tl.fromTo(shapeOf[id], { attr: { opacity: 0 } }, { attr: { opacity: 1 }, duration: 0.45 }, n.at);
+          });
+          LBL.forEach((l) => tl.fromTo("#arch-" + l.id, { opacity: 0 }, { opacity: 1, duration: 0.4 }, l.at));
+          tl.fromTo("#arch-note1", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 4.3);
+          tl.fromTo(["#arch-note2", "#arch-note3"], { opacity: 0 }, { opacity: 1, duration: 0.4 }, 5.6);
+
+          /* ---------------- data packets, in execution order ---------------- */
+          const SPEED = 760, FLOW0 = 6.9, STAGE = 0.55;
+          const packet = (w, start, r) => {
+            const pts = w.pts, travel = Math.max(0.35, w.len / SPEED);
+            const c = el("circle", { r: r || 7, cx: pts[0][0], cy: pts[0][1], fill: COL[w.c], opacity: 0 }, over);
+            const kf = [];
+            for (let i = 1; i < pts.length; i++) {
+              const seg = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+              kf.push({ attr: { cx: pts[i][0], cy: pts[i][1] }, duration: (travel * seg) / w.len, ease: "none" });
+            }
+            tl.fromTo(c, { attr: { opacity: 0 } }, { attr: { opacity: 1 }, duration: 0.08 }, start);
+            tl.fromTo(c, { attr: { cx: pts[0][0], cy: pts[0][1] } }, { keyframes: kf }, start);
+            tl.to(c, { attr: { opacity: 0 }, duration: 0.12 }, start + travel);
+            return travel;
+          };
+          // stage 4 is the fold loop: five laps, each lighting one fold square
+          const FOLD0 = FLOW0 + 4 * STAGE, LAP = 0.62;
+          W.forEach((w) => {
+            if (w.id === "loop") return;
+            const st = w.seq < 4 ? FLOW0 + w.seq * STAGE : FLOW0 + w.seq * STAGE + 5 * LAP - STAGE;
+            packet(w, st);
+          });
+          const loop = W.find((w) => w.id === "loop");
+          const fn = document.getElementById("arch-fold-n"), fc = { v: 0 };
+          for (let k = 0; k < 5; k++) {
+            const at = FOLD0 + k * LAP;
+            packet(loop, at, 6);
+            tl.to("#arch-fold" + (k + 1), { backgroundColor: "#b9a2ff", duration: 0.2 }, at + 0.4);
+            tl.to(fc, { v: k + 1, duration: 0.05, ease: "none", onUpdate: () => { fn.textContent = Math.round(fc.v) + " / 5"; } }, at + 0.4);
+          }
+          tl.to("#n-xgb", { boxShadow: "0 0 46px rgba(185,162,255,0.35)", duration: LAP / 2, ease: "sine.inOut", yoyo: true, repeat: 9 }, FOLD0);
+
+          /* ---------------- critical path ---------------- */
+          const CP0 = 12.6;
+          const critW = W.filter((w) => w.crit), critN = ["edges", "graph", "rates", "xgb", "oof", "budget", "plan", "reps"];
+          W.filter((w) => !w.crit).forEach((w) => tl.to(w.g, { attr: { opacity: 0.2 }, duration: 0.5 }, CP0));
+          Object.keys(N).filter((id) => !critN.includes(id)).forEach((id) => {
+            tl.to("#n-" + id, { opacity: 0.28, duration: 0.5 }, CP0);
+            if (shapeOf[id]) tl.to(shapeOf[id], { attr: { opacity: 0.28 }, duration: 0.5 }, CP0);
+          });
+          tl.to(["#arch-frames", "#arch-labels"], { opacity: 0.4, duration: 0.5 }, CP0);
+          critW.forEach((w) => tl.to(w.path, { attr: { "stroke-width": 5, opacity: 1 }, duration: 0.4 }, CP0 + 0.2));
+          tl.fromTo("#arch-crit", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, CP0 + 0.3);
+          let t = CP0 + 0.5;
+          critW.forEach((w) => { t += packet(w, t, 8) * 0.85; });
+          tl.to("#arch-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.4);
+          window.__timelines["arch"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

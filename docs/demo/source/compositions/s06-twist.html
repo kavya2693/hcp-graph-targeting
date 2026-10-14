@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <template>
+      <style>
+        #twist-root { position: absolute; inset: 0; }
+        #twist-root .eyebrow { color: var(--c-risk); }
+        #twist-root .sub { position: absolute; left: 120px; top: 196px; font-size: 30px; color: var(--ink-soft); }
+        #twist-root .rows { position: absolute; left: 120px; top: 268px; width: 1680px; }
+        #twist-root .row { position: relative; display: flex; align-items: center; height: 84px; }
+        #twist-root .who { width: 470px; font-size: 32px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+        #twist-root .who small { display: block; font-family: var(--mono); font-size: 20px; font-weight: 400; color: var(--ink-mute); }
+        #twist-root .track { position: relative; width: 1000px; height: 84px; }
+        #twist-root .ci { position: absolute; top: 39px; height: 6px; border-radius: 3px; transform-origin: center center; }
+        #twist-root .pt { position: absolute; top: 28px; width: 28px; height: 28px; margin-left: -14px; border-radius: 50%; border: 3px solid var(--bg); }
+        #twist-root .val { width: 210px; text-align: right; font-family: var(--mono); font-size: 36px; font-weight: 700; color: var(--ink-soft); }
+        #twist-root .zero { position: absolute; top: 260px; width: 2px; height: 440px; background: rgba(178, 191, 204, 0.45); }
+        #twist-root .axis { position: absolute; top: 700px; font-family: var(--mono); font-size: 20px; color: var(--ink-mute); white-space: nowrap; }
+        #twist-root .ref .who, #twist-root .ref .val { color: var(--c-opt); }
+        #twist-root .gain { position: absolute; left: 120px; top: 752px; width: 1680px; display: flex; align-items: center; gap: 24px; }
+        #twist-root .gain .gl { width: 446px; font-family: var(--mono); font-size: 22px; color: var(--ink-soft); }
+        #twist-root .gain .gt { position: relative; width: 1000px; height: 40px; border-radius: 8px; background: rgba(178, 191, 204, 0.1); overflow: hidden; }
+        #twist-root .gain .seg { position: absolute; top: 0; height: 40px; transform-origin: left center; display: flex; align-items: center; padding-left: 12px; font-family: var(--mono); font-size: 20px; font-weight: 700; color: #0a1119; white-space: nowrap; }
+        #twist-root .gain .gv { width: 210px; text-align: right; font-family: var(--mono); font-size: 44px; font-weight: 700; color: var(--c-model); }
+        #twist-root .verdict {
+          position: absolute; left: 120px; top: 834px; width: 1680px; padding: 18px 28px; border-radius: 12px;
+          border: 2px solid rgba(255, 138, 115, 0.45); background: rgba(255, 138, 115, 0.07);
+          font-size: 29px; line-height: 1.4; color: var(--ink);
+        }
+        #twist-root .verdict b { color: var(--c-risk); }
+      </style>
+      <div id="twist-root" data-composition-id="twist" data-width="1920" data-height="1080">
+        <div class="scene" id="twist-in">
+          <div class="eyebrow" data-layout-allow-overlap id="twist-eyebrow">09 · What didn't win</div>
+          <div class="scene-title" data-layout-allow-overlap id="twist-title">Embeddings take 61% of split gain and add almost nothing.</div>
+          <div class="sub" id="twist-sub">AUC added, with paired bootstrap 95% intervals (outputs/deltas.csv)</div>
+          <div class="rows" id="twist-rows"></div>
+          <div class="zero" id="twist-zero"></div>
+          <div class="axis" id="twist-ax"></div>
+          <div class="gain" id="twist-gain">
+            <div class="gl">share of split gain in the full model</div>
+            <div class="gt">
+              <div class="seg" id="twist-g1" style="left: 0; width: 398px; background: var(--c-model)">node2vec 40%</div>
+              <div class="seg" id="twist-g2" style="left: 398px; width: 209px; background: rgba(185, 162, 255, 0.6)">SAGE 21%</div>
+            </div>
+            <div class="gv" id="twist-gv">61%</div>
+          </div>
+          <div class="verdict" id="twist-verdict"><b>Why:</b> the embeddings re-encode community membership the hand-built features already carry. Split gain counts splits, not value added.</div>
+        </div>
+      </div>
+      <script>
+        (() => {
+          // deltas from outputs/deltas.csv (metric = auc); x-axis −0.02 … +0.04
+          const ROWS = [
+            { who: "Graph features", sm: "vs profile + decile", d: 0.026926, lo: 0.018097, hi: 0.036989, c: "#3fd8a8", cls: "ref" },
+            { who: "+ node2vec", sm: "vs graph features", d: 0.007787, lo: -0.000135, hi: 0.014087, c: "#b9a2ff" },
+            { who: "+ GraphSAGE", sm: "vs graph features", d: -0.00249, lo: -0.007536, hi: 0.002564, c: "#b9a2ff" },
+            { who: "+ both", sm: "vs graph features", d: 0.005488, lo: -0.00186, hi: 0.011884, c: "#b9a2ff" },
+            { who: "Embeddings instead", sm: "vs graph features", d: -0.009936, lo: -0.020063, hi: -0.000751, c: "#ff8a73" },
+          ];
+          const X0 = -0.02, X1 = 0.04, TW = 1000, TL = 590;
+          const px = (v) => ((v - X0) / (X1 - X0)) * TW;
+          const sgn = (v) => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(3);
+          document.getElementById("twist-rows").innerHTML = ROWS.map((r, k) =>
+            '<div class="row ' + (r.cls || "") + '" id="twist-r' + k + '"><div class="who">' + r.who + "<small>" + r.sm + "</small></div>" +
+            '<div class="track"><div class="ci" id="twist-ci' + k + '" style="left:' + px(r.lo).toFixed(1) + "px;width:" + (px(r.hi) - px(r.lo)).toFixed(1) + "px;background:" + r.c + '"></div>' +
+            '<div class="pt" id="twist-pt' + k + '" style="left:' + px(r.d).toFixed(1) + "px;background:" + r.c + '"></div></div>' +
+            '<div class="val">' + sgn(r.d) + "</div></div>").join("");
+          const z = document.getElementById("twist-zero");
+          z.style.left = (TL + px(0)).toFixed(1) + "px";
+          document.getElementById("twist-ax").innerHTML = [-0.02, 0, 0.02, 0.04].map((v) =>
+            '<span style="position:absolute;width:80px;text-align:center;left:' + (TL + px(v) - 40).toFixed(0) + 'px">' + (v === 0 ? "0" : sgn(v).replace(".000", ".00").replace("0.020", "0.02").replace("0.040", "0.04")) + "</span>").join("");
+          document.getElementById("twist-ax").style.left = "0px";
+
+          const tl = gsap.timeline({ paused: true });
+          const D = 7.0;
+          tl.fromTo("#twist-in", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
+          tl.fromTo("#twist-eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.1);
+          tl.fromTo("#twist-title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.2);
+          tl.fromTo(["#twist-sub", "#twist-zero", "#twist-ax"], { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.5);
+          ROWS.forEach((_, k) => {
+            const at = 0.8 + k * 0.22;
+            tl.fromTo("#twist-r" + k, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, at);
+            tl.fromTo("#twist-ci" + k, { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power3.out" }, at + 0.15);
+            tl.fromTo("#twist-pt" + k, { scale: 0 }, { scale: 1, duration: 0.4, ease: "power3.out" }, at + 0.3);
+          });
+          tl.fromTo("#twist-gain", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 2.2);
+          tl.fromTo(["#twist-g1", "#twist-g2"], { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power3.out", stagger: 0.3 }, 2.3);
+          tl.fromTo("#twist-verdict", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 3.2);
+          tl.to("#twist-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.4);
+          window.__timelines["twist"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>
