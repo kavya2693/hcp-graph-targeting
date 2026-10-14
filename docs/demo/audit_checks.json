@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-14 14:15",
+ "generated": "2026-10-14 18:43",
  "commit": "719ffbfc4cf1d5bf57f19f9c80be25168ad972f6",
  "checks": [
   {
@@ -60,7 +60,7 @@
   },
   {
    "id": "F-08",
-   "shown": "only 8.1% convert to the new drug / all 20,000 HCPs: 8.1%",
+   "shown": "only 8.1% convert to the new drug / all 20,000: 8.1%",
    "type": "direct",
    "computed": "8.1%",
    "expect": "8.1%",
@@ -76,7 +76,7 @@
   },
   {
    "id": "F-10",
-   "shown": "EVERY FOLD, 5 TIMES / Stratified 5-fold",
+   "shown": "5 TEST ROUNDS / 5 test rounds / the model is tested 5 times",
    "type": "direct",
    "computed": "5",
    "expect": "5",
@@ -92,7 +92,7 @@
   },
   {
    "id": "F-12",
-   "shown": "held-out AUC fell to 0.589",
+   "shown": "Leaky first version: 0.589",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -104,14 +104,6 @@
    "type": "direct",
    "computed": "0.668",
    "expect": "0.668",
-   "status": "pass"
-  },
-  {
-   "id": "F-14",
-   "shown": "and a test pins it",
-   "type": "direct",
-   "computed": "true",
-   "expect": "true",
    "status": "pass"
   },
   {
@@ -132,18 +124,10 @@
   },
   {
    "id": "F-17",
-   "shown": "35 regions \u00b7 408 communities",
+   "shown": "35 regions \u00b7 408 groups",
    "type": "direct",
    "computed": "35 \u00b7 408",
    "expect": "35 \u00b7 408",
-   "status": "pass"
-  },
-  {
-   "id": "F-18",
-   "shown": "betweenness k=256",
-   "type": "direct",
-   "computed": "true",
-   "expect": "true",
    "status": "pass"
   },
   {
@@ -156,7 +140,7 @@
   },
   {
    "id": "F-20",
-   "shown": "nine model arms \u00b7 7 arms + 2 controls \u00b7 45 fits",
+   "shown": "nine model variants \u00b7 7 feature sets + 2 controls \u00b7 45 fits",
    "type": "derived",
    "computed": "45",
    "expect": "45",
@@ -172,7 +156,7 @@
   },
   {
    "id": "F-22",
-   "shown": "k = 1,000 \u00b7 4,000",
+   "shown": "1,000 or 4,000 calls",
    "type": "direct",
    "computed": "1,000 \u00b7 4,000",
    "expect": "1,000 \u00b7 4,000",
@@ -180,7 +164,7 @@
   },
   {
    "id": "F-23",
-   "shown": "200 resamples \u00b7 95% CI",
+   "shown": "200 resamples \u00b7 95% range / 95% ranges from 200 resamples",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -196,7 +180,7 @@
   },
   {
    "id": "F-25",
-   "shown": "CPU only, no GPU or API key / RUNS ON A LAPTOP CPU",
+   "shown": "one command runs it all on a CPU / RUNS ON A LAPTOP CPU",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -204,7 +188,7 @@
   },
   {
    "id": "F-26",
-   "shown": "fallback: decile, then annual Rx (today's list)",
+   "shown": "fallback: today's decile list",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -228,7 +212,7 @@
   },
   {
    "id": "F-29",
-   "shown": "590 of 1,834 HCPs in one regional block \u00b7 1,304 ties",
+   "shown": "590 of 1,834 doctors in one region \u00b7 1,304 ties",
    "type": "direct",
    "computed": "590 of 1,834 \u00b7 1,304",
    "expect": "590 of 1,834 \u00b7 1,304",
@@ -316,7 +300,7 @@
   },
   {
    "id": "F-40",
-   "shown": "#1 HCP 16728 \u2026 #6 HCP 04338",
+   "shown": "#1 Dr 16728 \u2026 #6 Dr 04338",
    "type": "direct",
    "computed": "true",
    "expect": "true",
@@ -324,7 +308,7 @@
   },
   {
    "id": "F-41",
-   "shown": "+ 994 more on this plan",
+   "shown": "+ 994 more",
    "type": "derived",
    "computed": "994",
    "expect": "994",
@@ -348,7 +332,7 @@
   },
   {
    "id": "F-44",
-   "shown": "29 of 100 HCPs here are planned \u00b7 called: 29 \u00b7 switched: 6",
+   "shown": "29 of 100 doctors here on the plan \u00b7 called: 29 \u00b7 switched: 6",
    "type": "direct",
    "computed": "29 of 100 \u00b7 6",
    "expect": "29 of 100 \u00b7 6",
@@ -356,7 +340,7 @@
   },
   {
    "id": "F-45",
-   "shown": "TOP 1,000 OF 20,000 HCPS",
+   "shown": "TOP 1,000 OF 20,000 DOCTORS",
    "type": "direct",
    "computed": "1,000 of 20,000",
    "expect": "1,000 of 20,000",
@@ -372,7 +356,7 @@
   },
   {
    "id": "F-47",
-   "shown": "0.641 \u2192 0.668 \u00b7 +0.027 [+0.018, +0.037]",
+   "shown": "0.641 \u2192 0.668 \u00b7 range +0.018 to +0.037",
    "type": "direct",
    "computed": "+0.027 [+0.018, +0.037]",
    "expect": "+0.027 [+0.018, +0.037]",
@@ -380,7 +364,7 @@
   },
   {
    "id": "F-48",
-   "shown": "0.633 \u00b7 below profile-only 0.641",
+   "shown": "0.633 \u00b7 below no-network 0.641",
    "type": "direct",
    "computed": "0.633 \u00b7 0.633 \u00b7 0.641",
    "expect": "0.633 \u00b7 0.633 \u00b7 0.641",
@@ -388,7 +372,7 @@
   },
   {
    "id": "F-49",
-   "shown": "44% \u00b7 126 \u2192 212 of 322",
+   "shown": "44% \u00b7 126 \u2192 212, max 322",
    "type": "derived",
    "computed": "44%",
    "expect": "44%",
@@ -404,7 +388,7 @@
   },
   {
    "id": "F-51",
-   "shown": "+0.027",
+   "shown": "Graph features vs no network +0.027 (line +0.018 to +0.037) LIFT",
    "type": "direct",
    "computed": "+0.027 [+0.018, +0.037]",
    "expect": "+0.027 [+0.018, +0.037]",
@@ -412,7 +396,7 @@
   },
   {
    "id": "F-52",
-   "shown": "+0.008",
+   "shown": "+0.008 (range touches zero)",
    "type": "direct",
    "computed": "+0.008 [-0.000, +0.014]",
    "expect": "+0.008 [-0.000, +0.014]",
@@ -427,28 +411,44 @@
    "status": "pass"
   },
   {
-   "id": "F-54",
-   "shown": "+0.005",
-   "type": "direct",
-   "computed": "+0.005 [-0.002, +0.012]",
-   "expect": "+0.005 [-0.002, +0.012]",
-   "status": "pass"
-  },
-  {
-   "id": "F-55",
-   "shown": "-0.010",
-   "type": "direct",
-   "computed": "-0.010 [-0.020, -0.001]",
-   "expect": "-0.010 [-0.020, -0.001]",
-   "status": "pass"
-  },
-  {
    "id": "F-56",
-   "shown": "61% \u00b7 node2vec 40% \u00b7 SAGE 21%",
+   "shown": "40% TRAP \u00b7 23% \u00b7 21%",
    "type": "derived",
-   "computed": "61% \u00b7 40% \u00b7 21%",
-   "expect": "61% \u00b7 40% \u00b7 21%",
+   "computed": "40% \u00b7 23% \u00b7 21%",
+   "expect": "40% \u00b7 23% \u00b7 21%",
    "status": "pass"
+  },
+  {
+   "id": "F-60",
+   "shown": "AUC 0.641 \u2192 0.668, 189 vs 166 converters per 1,000 calls",
+   "type": "direct",
+   "computed": "0.641 \u2192 0.668, 189 vs 166",
+   "expect": "0.641 \u2192 0.668, 189 vs 166",
+   "status": "pass"
+  },
+  {
+   "id": "F-61",
+   "shown": "THE FIX, IN THE REPO \u00b7 Score each block by the AUC it adds",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-62",
+   "shown": "NEXT supervised GraphSAGE",
+   "type": "direct",
+   "computed": "true",
+   "expect": "true",
+   "status": "pass"
+  },
+  {
+   "id": "F-63",
+   "shown": "AUC = how well a score ranks converters (switchers) above the rest; higher is better; 0.5 = a coin flip",
+   "type": "general-knowledge",
+   "status": "manual",
+   "computed": "-",
+   "reason": "Plain-English definition of a standard metric; not a repo output."
   },
   {
    "id": "F-57",
@@ -468,7 +468,7 @@
   },
   {
    "id": "F-59",
-   "shown": "$ make run   # 20,000 HCPs, 9 arms, 5 folds",
+   "shown": "$ make run   # 20,000 doctors, 9 model variants, 5 test rounds",
    "type": "direct",
    "computed": "true",
    "expect": "true",

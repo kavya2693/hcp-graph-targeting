@@ -7,9 +7,9 @@
 Which doctors a launch sales team should call when prescription-volume deciles stop telling
 converters from non-converters, and how much of the answer comes from the referral network.
 
-[![88-second silent walkthrough: the industry problem, how it works, the architecture, the network, the call plan and the results](docs/demo/demo.gif)](https://kavya2693.github.io/work-demos/hcp-graph-targeting.mp4)
+[![90-second silent walkthrough: the industry problem, how it works, the architecture, the network, the call plan, the results, and the embeddings lesson with the fix the repo applies](docs/demo/demo.gif)](https://kavya2693.github.io/work-demos/hcp-graph-targeting.mp4)
 
-*88-second silent walkthrough. [Play the full video](https://kavya2693.github.io/work-demos/hcp-graph-targeting.mp4) · [download the MP4, 7 MB](docs/demo/demo.mp4).*
+*90-second silent walkthrough. [Play the full video](https://kavya2693.github.io/work-demos/hcp-graph-targeting.mp4) · [download the MP4, 8 MB](docs/demo/demo.mp4).*
 
 📄 **Audit report:** every figure and assumption in the video, traced to its source — [PDF](docs/demo/AUDIT_REPORT.pdf) · [Word](docs/demo/AUDIT_REPORT.docx) · [Markdown](docs/demo/AUDIT_REPORT.md)
 

@@ -12,7 +12,7 @@
           background: var(--panel); padding: 44px 34px 36px; display: flex; flex-direction: column; overflow: hidden;
         }
         #results-root .card .bar { position: absolute; left: 0; top: 0; width: 100%; height: 6px; }
-        #results-root .card .layer { font-family: var(--mono); font-size: 20px; letter-spacing: 0.12em; text-transform: uppercase; }
+        #results-root .card .layer { font-family: var(--mono); font-size: 22px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
         #results-root .card .big {
           margin-top: 18px; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 104px;
           font-weight: 700; letter-spacing: -0.05em; line-height: 1; white-space: nowrap;
@@ -32,27 +32,28 @@
         #results-root .rsk .big, #results-root .rsk .layer { color: var(--c-risk); }
         #results-root .evl .bar, #results-root .evl .mini-fill { background: var(--c-eval); }
         #results-root .evl .big, #results-root .evl .layer { color: var(--c-eval); }
-        #results-root .footnote { position: absolute; left: 120px; top: 840px; font-family: var(--mono); font-size: 24px; color: var(--ink-mute); }
+        #results-root .footnote { position: absolute; left: 120px; top: 840px; font-size: 26px; font-weight: 500; color: var(--ink-soft); }
       </style>
       <div id="results-root" data-composition-id="results" data-width="1920" data-height="1080">
         <div class="scene" id="results-in">
-          <div class="eyebrow" data-layout-allow-overlap id="results-eyebrow">08 · Results · 20,000 HCPs, out-of-fold</div>
+          <div class="eyebrow" data-layout-allow-overlap id="results-eyebrow">08 · Results · 20,000 doctors, held-out scores</div>
           <div class="scene-title" data-layout-allow-overlap id="results-title">More converters per call, and the network is why.</div>
+          <div class="scene-sub" id="results-sub">AUC = how well a score ranks converters above the rest (0.5 = a coin flip); higher is better.</div>
           <div class="cards">
             <div class="card opt" id="results-c1"><div class="bar"></div><div class="layer">call plan</div>
               <div class="big">+<span id="results-v1">0</span>%</div><div class="lab">converters reached with 1,000 calls</div>
               <div class="mini"><div class="mini-fill" id="results-m1"></div></div><div class="foot">decile list 126 → 189</div></div>
             <div class="card mod" id="results-c2"><div class="bar"></div><div class="layer">model</div>
               <div class="big" id="results-v2">0.641</div><div class="lab">AUC with graph features</div>
-              <div class="mini"><div class="mini-fill" id="results-m2"></div></div><div class="foot">+0.027 [+0.018, +0.037]</div></div>
+              <div class="mini"><div class="mini-fill" id="results-m2"></div></div><div class="foot">range +0.018 to +0.037</div></div>
             <div class="card rsk" id="results-c3"><div class="bar"></div><div class="layer">shuffled control</div>
-              <div class="big" id="results-v3">0.668</div><div class="lab">AUC once HCPs are moved on the graph</div>
-              <div class="mini"><div class="mini-fill" id="results-m3"></div></div><div class="foot">below profile-only 0.641</div></div>
+              <div class="big" id="results-v3">0.668</div><div class="lab">AUC when doctors are shuffled on the graph</div>
+              <div class="mini"><div class="mini-fill" id="results-m3"></div></div><div class="foot">below no-network 0.641</div></div>
             <div class="card evl" id="results-c4"><div class="bar"></div><div class="layer">headroom</div>
-              <div class="big"><span id="results-v4">0</span>%</div><div class="lab">of the gap to the ceiling closed</div>
-              <div class="mini"><div class="mini-fill" id="results-m4"></div></div><div class="foot">126 → 212 of 322</div></div>
+              <div class="big"><span id="results-v4">0</span>%</div><div class="lab">of the gap to the best possible closed</div>
+              <div class="mini"><div class="mini-fill" id="results-m4"></div></div><div class="foot">126 → 212, max 322</div></div>
           </div>
-          <div class="footnote" id="results-foot">graph features beat profile-only on all 3 seeds: +0.025 to +0.039 AUC · paired bootstrap, 200 resamples</div>
+          <div class="footnote" id="results-foot">Graph features beat the no-network model on all 3 generated markets: +0.025 to +0.039 AUC · 95% ranges from 200 resamples</div>
         </div>
       </div>
       <script>
@@ -62,6 +63,7 @@
           tl.fromTo("#results-in", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
           tl.fromTo("#results-eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.1);
           tl.fromTo("#results-title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.2);
+          tl.fromTo("#results-sub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.5);
           // values from outputs/ablation.csv; mini bars drawn to the same ratios
           const stats = [
             { v: "results-v1", m: "#results-m1", from: 0, to: 50, d: 0, r0: 126 / 189, r: 1 },
@@ -78,7 +80,7 @@
             tl.fromTo(s.m, { scaleX: s.r0 }, { scaleX: s.r, duration: 1.6, ease: "power3.out" }, at + 0.3);
           });
           tl.fromTo("#results-foot", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 2.8);
-          tl.to("#results-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.4);
+          tl.to("#results-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.8); // dip: fully out before the next scene starts
           window.__timelines["results"] = tl;
         })();
       </script>

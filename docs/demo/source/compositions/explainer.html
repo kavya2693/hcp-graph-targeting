@@ -8,8 +8,10 @@
            Per repo, edit only the CONFIG object in the script below (and slide B's markup if the key idea differs). */
         #explainer-root {
           position: absolute; inset: 0;
-          --w-bg: #ffffff; --w-ink: #111827; --w-soft: #4b5563; --w-mute: #6b7280; --w-line: #d1d5db;
+          --w-bg: #ffffff; --w-ink: #111827; --w-soft: #4b5563; --w-mute: #4b5563; --w-line: #d1d5db;
           --w-data: #d97706; --w-model: #6d3cf0; --w-tools: #1f8fa8; --w-risk: #dc2b4a; --w-opt: #0f9f6e; --w-eval: #b45309;
+          /* text versions of the layer colours: every one is >= 4.5:1 on white (the fills above are for tiles only) */
+          --w-data-t: #b45309; --w-model-t: #6d3cf0; --w-tools-t: #0e7490; --w-risk-t: #be123c; --w-opt-t: #047857;
           color: var(--w-ink); font-family: Inter, "Helvetica Neue", sans-serif;
         }
         #explainer-root .page { position: absolute; inset: 0; background: var(--w-bg); }
@@ -45,12 +47,12 @@
         #explainer-root .box { position: absolute; border: 3px solid var(--w-line); border-radius: 28px; }
         #explainer-root .pill {
           position: absolute; left: 28px; top: -22px; padding: 6px 18px; border-radius: 999px; background: var(--w-bg);
-          border: 3px solid var(--w-line); font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 700;
+          border: 3px solid var(--w-line); font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 700;
           letter-spacing: 0.14em; color: var(--w-soft); white-space: nowrap;
         }
         #explainer-root .loop { position: absolute; width: 84px; height: 84px; }
         #explainer-root .loop-lab {
-          position: absolute; font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 700; color: var(--w-opt); white-space: nowrap;
+          position: absolute; font-family: "JetBrains Mono", monospace; font-size: 24px; font-weight: 700; color: var(--w-opt-t); white-space: nowrap;
         }
         #explainer-root .badges { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
         #explainer-root .badge { display: flex; align-items: center; gap: 12px; font-size: 24px; font-weight: 700; color: var(--w-ink); white-space: nowrap; }
@@ -72,17 +74,18 @@
           position: absolute; left: 520px; top: 96px; width: 250px; height: 210px; border-radius: 22px; background: #f5f3ff;
           border: 3px solid #ddd6fe; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
         }
-        #explainer-root .readout .rl { font-family: "JetBrains Mono", monospace; font-size: 20px; font-weight: 700; letter-spacing: 0.12em; color: var(--w-model); }
+        #explainer-root .readout .rl { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 700; letter-spacing: 0.1em; color: var(--w-model-t); }
         #explainer-root .readout .rv { font-family: "JetBrains Mono", monospace; font-size: 64px; font-weight: 700; color: var(--w-ink); }
         #explainer-root .readout .rs { font-size: 22px; color: var(--w-soft); }
         #explainer-root .hidden-tag {
           position: absolute; left: 170px; top: 338px; width: 280px; text-align: center; font-family: "JetBrains Mono", monospace;
-          font-size: 20px; font-weight: 700; color: var(--w-risk); letter-spacing: 0.06em;
+          font-size: 22px; font-weight: 700; color: var(--w-risk-t); letter-spacing: 0.04em;
         }
         #explainer-root .verdict { position: absolute; left: 50px; top: 392px; width: 720px; font-size: 28px; line-height: 1.35; color: var(--w-ink); }
-        #explainer-root .verdict b { color: var(--w-risk); }
+        #explainer-root .verdict b { color: var(--w-risk-t); }
+        #explainer-root .subt { position: absolute; left: 120px; top: 252px; width: 1680px; font-size: 28px; font-weight: 500; color: var(--w-soft); }
         #explainer-root .foot {
-          position: absolute; left: 120px; top: 880px; font-family: "JetBrains Mono", monospace; font-size: 24px; color: var(--w-soft);
+          position: absolute; left: 120px; top: 880px; font-size: 26px; font-weight: 500; color: var(--w-soft);
         }
       </style>
 
@@ -91,23 +94,25 @@
           <!-- SLIDE A: the flow -->
           <div class="slide" id="ex-a">
             <div class="kick" id="ex-a-kick">03 · HOW IT WORKS</div>
-            <div class="ttl" id="ex-a-ttl">From claims to a <em style="color: var(--w-opt)">call list</em></div>
+            <div class="ttl" id="ex-a-ttl">From claims to a <em style="color: var(--w-opt-t)">call list</em></div>
             <div class="uline" id="ex-a-ul" style="background: var(--w-opt)"></div>
+            <div class="subt" id="ex-a-sub">Read left to right: map who shares patients, score each doctor without their own outcome, call the top.</div>
             <div id="ex-a-flow"></div>
           </div>
 
           <!-- SLIDE B: the one key idea -->
           <div class="slide" id="ex-b">
             <div class="kick" id="ex-b-kick">04 · THE KEY IDEA</div>
-            <div class="ttl" id="ex-b-ttl">Learn from peers, <em style="color: var(--w-risk)">without peeking</em></div>
+            <div class="ttl" id="ex-b-ttl">Learn from peers, <em style="color: var(--w-risk-t)">without peeking</em></div>
             <div class="uline" id="ex-b-ul" style="background: var(--w-risk)"></div>
+            <div class="subt" id="ex-b-sub">The model is tested 5 times, each time on a fifth of doctors it never saw. Peer rates use only the others.</div>
             <div class="steps">
               <div class="step" id="ex-b-s1"><div class="tile" style="background: var(--w-tools)" data-icon="network"></div>
                 <div class="txt">A doctor's peers predict them<small>how their practice and contacts converted</small></div></div>
               <div class="step" id="ex-b-s2"><div class="tile" style="background: var(--w-risk)" data-icon="shield"></div>
                 <div class="txt">A careless average leaks the answer<small>it quietly counts the doctor's own outcome</small></div></div>
               <div class="step" id="ex-b-s3"><div class="tile" style="background: var(--w-opt)" data-icon="check"></div>
-                <div class="txt">So the rates are rebuilt for every fold<small>from other doctors' outcomes only</small></div></div>
+                <div class="txt">So the rates are rebuilt each round<small>from other doctors' outcomes only</small></div></div>
             </div>
             <div class="demo" id="ex-b-demo">
               <div class="pill">ONE PRACTICE · SHARED PATIENTS</div>
@@ -120,7 +125,7 @@
               </div>
               <div class="verdict" id="ex-b-verdict">The score sees <b>only the others</b>: 2 of 5 switched.</div>
             </div>
-            <div class="foot" id="ex-b-foot">First version leaked: held-out AUC fell to 0.589. Fold-built rates reach 0.668, and a test pins it.</div>
+            <div class="foot" id="ex-b-foot">AUC = how well a score ranks switchers above the rest; higher is better. Leaky first version: 0.589. Rebuilt: 0.668.</div>
           </div>
         </div>
         <div class="edge" id="ex-edge"></div>
@@ -131,7 +136,7 @@
           /* ================= CONFIG (edit per repo) ================= */
           const CONFIG = {
             duration: 15.0, // whole chapter
-            slideB: 8.0, // when slide B replaces slide A
+            slideB: 7.4, // when slide B replaces slide A
             blocks: [
               // x = block centre; colour = layer; icon = key in ICONS
               { x: 260, label: "CLAIMS DATA", sub: "doctors, Rx, shared patients", color: "--w-data", icon: "archive" },
@@ -145,7 +150,7 @@
             groups: [
               // rounded containers with a pill label, spanning block indexes [from, to]
               { from: 1, to: 2, label: "THE GRAPH" },
-              { from: 3, to: 4, label: "EVERY FOLD, 5 TIMES" },
+              { from: 3, to: 4, label: "5 TEST ROUNDS" },
             ],
             loop: { block: 4, label: "train, score, repeat" },
           };
@@ -185,7 +190,7 @@
             }
             const col = "var(" + b.color + ")";
             let inner = '<div class="tile" style="background:' + col + '">' + svgIcon(b.icon) + "</div>" +
-              '<div class="lab" style="color:' + col + '">' + b.label + "</div>";
+              '<div class="lab" style="color:var(' + b.color + '-t)">' + b.label + "</div>";
             if (b.sub) inner += '<div class="sub">' + b.sub + "</div>";
             if (b.badges) inner += '<div class="badges">' + b.badges.map((t, k) => '<div class="badge" id="ex-bd' + k + '"><i>' + CHECK + "</i>" + t + "</div>").join("") + "</div>";
             html.push('<div class="blk" id="ex-b' + i + '" style="left:' + (b.x - W / 2) + "px;top:" + TILE_TOP + 'px">' + inner + "</div>");
@@ -208,6 +213,7 @@
           tl.fromTo("#ex-a-kick", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.5);
           tl.fromTo("#ex-a-ttl", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.55);
           tl.fromTo("#ex-a-ul", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, 0.9);
+          tl.fromTo("#ex-a-sub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 1.0);
           const STEP = 0.55, S0 = 1.3;
           CONFIG.blocks.forEach((b, i) => {
             const at = S0 + i * STEP;
@@ -228,6 +234,7 @@
           tl.fromTo("#ex-b-kick", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, B);
           tl.fromTo("#ex-b-ttl", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, B + 0.05);
           tl.fromTo("#ex-b-ul", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power3.out" }, B + 0.4);
+          tl.fromTo("#ex-b-sub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, B + 0.45);
           ["#ex-b-s1", "#ex-b-s2", "#ex-b-s3"].forEach((s, i) =>
             tl.fromTo(s, { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, B + 0.6 + i * 0.5));
           tl.fromTo("#ex-b-demo", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, B + 0.7);
@@ -260,7 +267,7 @@
           let got = 0;
           PEERS.forEach(([x, y, conv], i) => {
             const dot = mk("circle", { cx: x, cy: y, r: 9, fill: conv ? "#0f9f6e" : "#9ca3af", opacity: 0 });
-            const at = D0 + 2.0 + i * 0.32;
+            const at = D0 + 2.0 + i * 0.25;
             tl.fromTo(dot, { attr: { opacity: 0 } }, { attr: { opacity: 1 }, duration: 0.1 }, at);
             tl.fromTo(dot, { attr: { cx: x, cy: y } }, { attr: { cx: 640, cy: 200 }, duration: 0.5, ease: "power2.in" }, at);
             tl.to(dot, { attr: { opacity: 0 }, duration: 0.1 }, at + 0.5);
@@ -269,8 +276,10 @@
               tl.to(cnt, { v: got, duration: 0.05, ease: "none", onUpdate: () => { rv.textContent = Math.round(cnt.v) + " / 5"; } }, at + 0.5);
             }
           });
-          tl.fromTo("#ex-b-verdict", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, B + 5.4);
-          tl.fromTo("#ex-b-foot", { opacity: 0 }, { opacity: 1, duration: 0.5 }, B + 5.8);
+          tl.fromTo("#ex-b-verdict", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, B + 4.8);
+          tl.fromTo("#ex-b-foot", { opacity: 0 }, { opacity: 1, duration: 0.5 }, B + 5.0);
+          // slide B text fades fully out before the wipe, so no two slides' text is ever on screen together
+          tl.to("#ex-b", { opacity: 0, duration: 0.35, ease: "power2.in" }, D - 1.05);
           // wipe out (white -> dark), revealing the next dark scene underneath
           tl.to("#ex-page", { clipPath: "inset(0px 0px 0px 100%)", duration: 0.7, ease: "power3.inOut" }, D - 0.7);
           tl.fromTo("#ex-edge", { x: 0, opacity: 0 }, { x: 1920, opacity: 1, duration: 0.7, ease: "power3.inOut", immediateRender: false }, D - 0.7);

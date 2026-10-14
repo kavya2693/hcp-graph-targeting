@@ -13,16 +13,16 @@
         }
         #arch-root .frame .ft {
           position: absolute; left: 16px; top: -15px; padding: 0 10px; background: var(--bg); font-family: var(--mono);
-          font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap;
+          font-size: 22px; line-height: 26px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap;
         }
         #arch-root .node {
           position: absolute; display: flex; flex-direction: column; justify-content: center; gap: 4px;
           padding: 0 16px; border: 2px solid var(--line); border-radius: 12px; background: var(--panel);
         }
         #arch-root .node .t { font-size: 24px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; }
-        #arch-root .node .s { font-family: var(--mono); font-size: 20px; color: var(--ink-soft); white-space: nowrap; }
+        #arch-root .node .s { font-size: 22px; font-weight: 500; color: var(--ink-soft); white-space: nowrap; }
         #arch-root .node .f {
-          position: absolute; right: 10px; top: -14px; font-family: var(--mono); font-size: 20px; line-height: 24px; padding: 0 8px;
+          position: absolute; right: 10px; top: -15px; font-family: var(--mono); font-size: 22px; line-height: 26px; padding: 0 8px;
           border-radius: 6px; background: var(--bg); border: 2px solid var(--line); white-space: nowrap;
         }
         #arch-root .node.tagged { padding-top: 12px; }
@@ -45,22 +45,22 @@
         #arch-root .dec { border: 3px solid var(--c-opt); background: #0f2629; }
         #arch-root .folds { display: flex; gap: 8px; margin-top: 4px; }
         #arch-root .folds i { display: block; width: 46px; height: 14px; border-radius: 4px; background: rgba(185, 162, 255, 0.18); }
-        #arch-root .fold-row { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--mono); font-size: 20px; color: var(--ink-soft); }
+        #arch-root .fold-row { display: flex; justify-content: space-between; margin-top: 6px; font-size: 22px; font-weight: 500; color: var(--ink-soft); }
         #arch-root .fold-row b { color: var(--c-model); }
-        #arch-root .lbl { position: absolute; font-family: var(--mono); font-size: 20px; white-space: nowrap; }
+        #arch-root .lbl { position: absolute; font-family: var(--mono); font-size: 22px; white-space: nowrap; }
         #arch-root .note {
-          position: absolute; font-family: var(--mono); font-size: 20px; color: var(--c-eval); white-space: nowrap;
+          position: absolute; font-family: var(--mono); font-size: 22px; color: var(--c-eval); white-space: nowrap;
           padding: 2px 10px; border-radius: 6px; background: rgba(242, 196, 109, 0.08); border: 1px solid rgba(242, 196, 109, 0.35);
         }
-        #arch-root .batch { position: absolute; left: 120px; top: 196px; font-family: var(--mono); font-size: 20px; color: var(--ink-mute); white-space: nowrap; }
+        #arch-root .scene-sub { width: 1150px; }
         #arch-root .legend { position: absolute; right: 40px; top: 184px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-        #arch-root .legend .lr { display: flex; gap: 22px; font-family: var(--mono); font-size: 20px; color: var(--ink-soft); }
+        #arch-root .legend .lr { display: flex; gap: 20px; font-family: var(--mono); font-size: 22px; color: var(--ink-soft); }
         #arch-root .legend span { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
         #arch-root .legend i { display: block; width: 14px; height: 14px; border-radius: 4px; }
         #arch-root .legend svg { width: 40px; height: 10px; }
         #arch-root .crit {
           position: absolute; left: 1290px; top: 790px; width: 600px; padding: 8px 16px; border-radius: 10px;
-          border: 2px solid var(--c-opt); background: #0d2a2a; font-family: var(--mono); font-size: 20px;
+          border: 2px solid var(--c-opt); background: #0d2a2a; font-family: var(--mono); font-size: 22px;
           line-height: 1.35; color: var(--ink);
         }
         #arch-root .crit b { color: var(--c-opt); }
@@ -69,8 +69,8 @@
       <div id="arch-root" data-composition-id="arch" data-width="1920" data-height="1080">
         <div class="scene" id="arch-in">
           <div class="eyebrow" data-layout-allow-overlap id="arch-eyebrow">05 · Architecture</div>
-          <div class="scene-title" data-layout-allow-overlap id="arch-title">One batch run: a graph, nine model arms, one scorecard.</div>
-          <div class="batch" id="arch-batch">batch · one command (hcp-targeting) · CPU only, no GPU or API key</div>
+          <div class="scene-title" data-layout-allow-overlap id="arch-title">One batch run: a graph, nine model variants, one scorecard.</div>
+          <div class="scene-sub" id="arch-sub">Each box is a file in the repo; one command runs it all on a CPU.</div>
           <div class="legend" id="arch-legend">
             <div class="lr">
               <span><i style="background: var(--c-data)"></i>data</span>
@@ -80,9 +80,9 @@
               <span><i style="background: var(--c-risk)"></i>leak guard</span>
             </div>
             <div class="lr">
-              <span><svg viewBox="0 0 40 10"><path d="M2 5H38" stroke="#b2bfcc" stroke-width="3" /></svg>once per run</span>
-              <span><svg viewBox="0 0 40 10"><path d="M2 5H38" stroke="#ff8a73" stroke-width="3" stroke-dasharray="7 5" /></svg>every fold</span>
-              <span><svg viewBox="0 0 40 10"><path d="M2 5H38" stroke="#b2bfcc" stroke-width="3" stroke-dasharray="2 5" /></svg>baseline / ceiling</span>
+              <span><svg viewBox="0 0 40 10"><path d="M2 5H38" stroke="#c8d3de" stroke-width="3" /></svg>once per run</span>
+              <span><svg viewBox="0 0 40 10"><path d="M2 5H38" stroke="#ff8a73" stroke-width="3" stroke-dasharray="7 5" /></svg>every test round</span>
+              <span><svg viewBox="0 0 40 10"><path d="M2 5H38" stroke="#c8d3de" stroke-width="3" stroke-dasharray="2 5" /></svg>baseline / ceiling</span>
             </div>
           </div>
           <div class="diagram" id="arch-diagram">
@@ -91,7 +91,7 @@
             <div id="arch-nodes"></div>
             <div id="arch-labels"></div>
             <svg class="layer" id="arch-over" viewBox="0 0 1920 1080"></svg>
-            <div class="crit" id="arch-crit"><b>Critical path:</b> ties → communities → fold-built rates → XGBoost → top-k → call plan</div>
+            <div class="crit" id="arch-crit"><b>Critical path:</b> ties → communities → peer rates → XGBoost → top 1,000 → call plan</div>
           </div>
         </div>
       </div>
@@ -101,7 +101,7 @@
           const tl = gsap.timeline({ paused: true });
           const D = 16.0;
           const NS = "http://www.w3.org/2000/svg";
-          const COL = { data: "#7fa8ff", model: "#b9a2ff", opt: "#3fd8a8", eval: "#f2c46d", risk: "#ff8a73", base: "#b2bfcc" };
+          const COL = { data: "#7fa8ff", model: "#b9a2ff", opt: "#3fd8a8", eval: "#f2c46d", risk: "#ff8a73", base: "#c8d3de" };
           const under = document.getElementById("arch-under"), over = document.getElementById("arch-over");
           const el = (tag, at, parent) => {
             const n = document.createElementNS(NS, tag);
@@ -134,24 +134,24 @@
             key: { k: "cyl", x: 100, y: 872, w: 270, h: 104, L: "base", t: "answer key .npy", s: ["ceiling row only"], at: 5.9 },
 
             prof: { k: "box", x: 440, y: 306, w: 404, h: 78, L: "data", f: "profile_features()", t: "Profile + decile", s: ["decile · Rx trend · specialty"], at: 1.8 },
-            graph: { k: "box", x: 440, y: 400, w: 404, h: 78, L: "data", f: "louvain_communities()", t: "Graph + Louvain", s: ["35 regions · 408 communities"], at: 1.95 },
-            cent: { k: "box", x: 440, y: 494, w: 404, h: 78, L: "data", f: "structural_features()", t: "Centrality", s: ["PageRank · betweenness k=256"], at: 2.1 },
+            graph: { k: "box", x: 440, y: 400, w: 404, h: 78, L: "data", f: "louvain_communities()", t: "Graph + practice groups", s: ["35 regions · 408 groups"], at: 1.95 },
+            cent: { k: "box", x: 440, y: 494, w: 404, h: 78, L: "data", f: "structural_features()", t: "Centrality", s: ["PageRank · betweenness"], at: 2.1 },
             rates: { k: "box", x: 440, y: 588, w: 404, h: 76, L: "risk", f: "label_graph_features()", t: "Conversion rates", s: ["practice + peers · no own label"], at: 2.25 },
             n2v: { k: "box", x: 440, y: 740, w: 200, h: 66, L: "model", t: "node2vec", s: ["32-d walks"], at: 2.8 },
             sage: { k: "box", x: 656, y: 740, w: 188, h: 66, L: "model", t: "GraphSAGE", s: ["2 × SAGEConv"], at: 2.9 },
 
-            folds: { k: "box", x: 920, y: 306, w: 310, h: 76, L: "model", f: "make_folds()", t: "Stratified 5-fold", s: ["same folds, every arm"], at: 3.4 },
-            xgb: { k: "hero", x: 920, y: 420, w: 310, h: 222, L: "model", f: "run_arm()", t: "XGBoost", s: ["400 trees · depth 4", "7 arms + 2 controls"], at: 3.6 },
-            oof: { k: "box", x: 920, y: 706, w: 310, h: 78, L: "model", t: "Out-of-fold scores", s: ["p(convert) × 20,000"], at: 4.1 },
+            folds: { k: "box", x: 920, y: 306, w: 310, h: 76, L: "model", f: "make_folds()", t: "5 test rounds", s: ["same rounds, every model"], at: 3.4 },
+            xgb: { k: "hero", x: 920, y: 420, w: 310, h: 222, L: "model", f: "run_arm()", t: "XGBoost", s: ["400 trees · depth 4", "7 feature sets + 2 controls"], at: 3.6 },
+            oof: { k: "box", x: 920, y: 706, w: 310, h: 78, L: "model", t: "Held-out scores", s: ["a score per doctor"], at: 4.1 },
 
             rule: { k: "box", x: 1300, y: 306, w: 260, h: 86, L: "base", f: "fallback", t: "Decile list", s: ["today's rule"], at: 4.5 },
-            budget: { k: "dec", x: 1300, y: 444, w: 260, h: 150, L: "opt", f: "captured_at_budget()", t: "◆ Call budget", s: ["top-k by score", "k = 1,000 · 4,000"], at: 4.6 },
+            budget: { k: "dec", x: 1300, y: 444, w: 260, h: 150, L: "opt", f: "captured_at_budget()", t: "◆ Call budget", s: ["highest scores first", "1,000 or 4,000 calls"], at: 4.6 },
 
             plan: { k: "doc", x: 1630, y: 444, w: 240, h: 150, L: "opt", t: "Call plan", s: ["1,000 HCPs", "ranked"], at: 5.2 },
             reps: { k: "person", x: 1630, y: 640, w: 240, h: 120, L: "base", t: "Field reps", s: ["fixed calls", "per cycle"], at: 5.4 },
 
             score: { k: "box", x: 440, y: 884, w: 340, h: 92, L: "eval", f: "summarise()", t: "Scorecard", s: ["AUC · lift · captured"], at: 5.95 },
-            boot: { k: "box", x: 800, y: 884, w: 340, h: 92, L: "eval", f: "bootstrap_delta()", t: "Paired bootstrap", s: ["200 resamples · 95% CI"], at: 6.05 },
+            boot: { k: "box", x: 800, y: 884, w: 340, h: 92, L: "eval", f: "bootstrap_delta()", t: "Paired bootstrap", s: ["200 resamples · 95% range"], at: 6.05 },
             ctrl: { k: "box", x: 1160, y: 884, w: 340, h: 92, L: "eval", f: "cli.py", t: "Shuffled control", s: ["same graph, HCPs moved"], at: 6.15 },
             outs: { k: "cyl", x: 1530, y: 872, w: 340, h: 112, L: "eval", t: "outputs/", s: ["ablation · deltas · summary"], at: 6.25 },
           };
@@ -160,8 +160,8 @@
           Object.entries(N).forEach(([id, n]) => {
             const shaped = n.k === "cyl" || n.k === "doc" || n.k === "person";
             const cls = "node L-" + n.L + (n.f ? " tagged" : "") + (n.k === "hero" ? " hero" : "") + (n.k === "dec" ? " dec" : "") + (shaped ? " plain" : "");
-            let inner = (n.f ? '<div class="f' + (id === "rule" ? " lf" : "") + '">' + n.f + "</div>" : "") + '<div class="t">' + n.t + "</div>" + n.s.map((s) => '<div class="s">' + s + "</div>").join("");
-            if (id === "xgb") inner += '<div class="fold-row"><span>fold</span><b id="arch-fold-n">0 / 5</b></div><div class="folds">' + [1, 2, 3, 4, 5].map((k) => '<i id="arch-fold' + k + '"></i>').join("") + "</div>";
+            let inner = (n.f ? '<div class="f' + (id === "rule" || id === "budget" ? " lf" : "") + '">' + n.f + "</div>" : "") + '<div class="t">' + n.t + "</div>" + n.s.map((s) => '<div class="s">' + s + "</div>").join("");
+            if (id === "xgb") inner += '<div class="fold-row"><span>test round</span><b id="arch-fold-n">0 / 5</b></div><div class="folds">' + [1, 2, 3, 4, 5].map((k) => '<i id="arch-fold' + k + '"></i>').join("") + "</div>";
             let style = "left:" + n.x + "px;top:" + n.y + "px;width:" + n.w + "px;height:" + n.h + "px";
             if (n.k === "cyl") style += ";padding-top:22px";
             if (n.k === "person") style += ";padding-left:84px;align-items:flex-start;text-align:left";
@@ -248,10 +248,8 @@
           const LBL = [
             { x: 246, y: 382, t: "writes", c: "data", at: 1.5, id: "l-writes" },
             { x: 656, y: 669, t: "train labels only", c: "risk", at: 4.4, id: "l-loop" },
-            { x: 520, y: 226, t: "fallback: decile, then annual Rx (today's list)", c: "base", at: 4.8, id: "l-fb" },
-            { x: 1564, y: 484, t: "top-k", c: "opt", at: 5.4, id: "l-top" },
-            { x: 1086, y: 789, t: "OOF scores", c: "model", at: 6.3, id: "l-oofs" },
-            { x: 1276, y: 750, t: "p(convert)", c: "model", at: 4.9, id: "l-p" },
+            { x: 520, y: 226, t: "fallback: today's decile list", c: "base", at: 4.8, id: "l-fb" },
+            { x: 1086, y: 789, t: "held-out scores", c: "model", at: 6.3, id: "l-oofs" },
           ];
           document.getElementById("arch-labels").innerHTML =
             LBL.map((l) => '<div class="lbl" id="arch-' + l.id + '" style="left:' + l.x + "px;top:" + l.y + "px;color:" + COL[l.c] + '">' + l.t + "</div>").join("") +
@@ -263,7 +261,7 @@
           tl.fromTo("#arch-in", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0);
           tl.fromTo("#arch-eyebrow", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 0.1);
           tl.fromTo("#arch-title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.2);
-          tl.fromTo(["#arch-batch", "#arch-legend"], { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.6);
+          tl.fromTo(["#arch-sub", "#arch-legend"], { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.6);
           tl.fromTo("#arch-diagram", { scale: 0.985 }, { scale: 1, duration: D, ease: "sine.out" }, 0);
           FRAMES.forEach((f) => tl.fromTo("#arch-" + f.id, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power2.out" }, f.at - 0.1));
           Object.entries(N).forEach(([id, n]) => {
@@ -311,15 +309,15 @@
           const critW = W.filter((w) => w.crit), critN = ["edges", "graph", "rates", "xgb", "oof", "budget", "plan", "reps"];
           W.filter((w) => !w.crit).forEach((w) => tl.to(w.g, { attr: { opacity: 0.2 }, duration: 0.5 }, CP0));
           Object.keys(N).filter((id) => !critN.includes(id)).forEach((id) => {
-            tl.to("#n-" + id, { opacity: 0.28, duration: 0.5 }, CP0);
-            if (shapeOf[id]) tl.to(shapeOf[id], { attr: { opacity: 0.28 }, duration: 0.5 }, CP0);
+            tl.to("#n-" + id, { opacity: 0.75, duration: 0.5 }, CP0); // stays >= 4.5:1
+            if (shapeOf[id]) tl.to(shapeOf[id], { attr: { opacity: 0.75 }, duration: 0.5 }, CP0);
           });
-          tl.to(["#arch-frames", "#arch-labels"], { opacity: 0.4, duration: 0.5 }, CP0);
+          tl.to(["#arch-frames", "#arch-labels"], { opacity: 0.75, duration: 0.5 }, CP0);
           critW.forEach((w) => tl.to(w.path, { attr: { "stroke-width": 5, opacity: 1 }, duration: 0.4 }, CP0 + 0.2));
           tl.fromTo("#arch-crit", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, CP0 + 0.3);
           let t = CP0 + 0.5;
           critW.forEach((w) => { t += packet(w, t, 8) * 0.85; });
-          tl.to("#arch-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.4);
+          tl.to("#arch-in", { opacity: 0, duration: 0.4, ease: "power2.in" }, D - 0.8); // dip: fully out before the next scene starts
           window.__timelines["arch"] = tl;
         })();
       </script>

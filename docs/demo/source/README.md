@@ -48,7 +48,7 @@ uv run python scripts/seed_sweep.py        # outputs/seed_sweep.csv (slide 08 fo
 python3 docs/demo/source/tools/inject_sheet.py docs/demo/source/assets/call_plan.json \
   docs/demo/source/compositions --rows 1,2,3,4,5,6
 
-# 3. render (88 s, 1920x1080, 30 fps, silent) and compress
+# 3. render (90 s, 1920x1080, 30 fps, silent) and compress
 cd docs/demo/source
 npx --yes hyperframes@0.8.156 check
 npx --yes hyperframes@0.8.156 render -f 30 -q looks -o renders/hcp-graph-targeting-master.mp4
